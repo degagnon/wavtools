@@ -20,7 +20,20 @@ int main(int argc, char** argv){
 		cout << argv[i] << endl;
 	}
 
+	char* data;
+	streampos filesize;
 
+	ifstream file (argv[1], ios::in|ios::binary|ios::ate);
+	if(file.is_open()){
+		cout << "File opened." << endl;
+		filesize = file.tellg();
+		cout << "File size is " << filesize << " bytes" << endl;
+		file.close();
+		cout << "File closed." << endl;
+	}
+	else{
+		cout << "File was not opened.";
+	}
 
 	return 0;
 }
