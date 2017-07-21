@@ -13,7 +13,13 @@
 using namespace std;
 
 uint16_t ReadLittleEndian2ByteUint(ifstream& filestream) {
-  return 0;
+  uint8_t bytes[2];
+  filestream.read((char*)bytes, 2);
+  for (int i = 0; i < 2; ++i) {
+    cout << "Byte " << i << " is " << hex << (int)bytes[i] << dec << endl;
+  }
+  uint32_t value = static_cast<uint32_t>(bytes[0] | bytes[1] << 8);
+  return value;
 }
 
 uint32_t ReadLittleEndian4ByteUint(ifstream& filestream) {
