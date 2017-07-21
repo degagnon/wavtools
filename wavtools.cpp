@@ -25,14 +25,14 @@ int main(int argc, char** argv){
 
 	ifstream file (argv[1], ios::in|ios::binary|ios::ate);
 	if(file.is_open()){
-		cout << "File opened." << endl;
+		cout << "File " << argv[1] << " opened." << endl;
 		filesize = file.tellg();
 		cout << "File size is " << filesize << " bytes" << endl;
 		data = new char [filesize];
 		file.seekg(ios::beg);
 		file.read(data, filesize);
 		file.close();
-		cout << "File closed." << endl;
+		cout << "File " << argv[1] << " closed." << endl;
 		for(int i = 0; i < 50; ++i){
 			cout << data[i] << endl;
 		}
