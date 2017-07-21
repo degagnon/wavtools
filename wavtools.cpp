@@ -12,11 +12,11 @@
 
 using namespace std;
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
   cout << "Number of input args is " << argc << endl;
   cout << "Arg loc is " << argv << endl;
   cout << "Arg values are:" << endl;
-  for(int i = 0; i < argc; ++i){
+  for (int i = 0; i < argc; ++i) {
     cout << argv[i] << endl;
   }
 
@@ -24,7 +24,7 @@ int main(int argc, char** argv){
   streampos filesize;
 
   ifstream file (argv[1], ios::in|ios::binary|ios::ate);
-  if(file.is_open()){
+  if (file.is_open()) {
     cout << "File " << argv[1] << " opened." << endl;
     filesize = file.tellg();
     cout << "File size is " << filesize << " bytes" << endl;
@@ -33,13 +33,12 @@ int main(int argc, char** argv){
     file.read(data, filesize);
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
-    for(int i = 0; i < 50; ++i){
+    for (int i = 0; i < 50; ++i) {
       cout << data[i];
     }
     cout << endl;
     delete[] data;
-  }
-  else{
+  } else {
     cout << "File was not opened.";
   }
 
