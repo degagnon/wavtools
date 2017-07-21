@@ -12,6 +12,17 @@
 
 using namespace std;
 
+uint16_t ReadLittleEndian2Bytes(ifstream& filestream) {
+  return 0;
+}
+uint32_t ReadLittleEndian4Bytes(ifstream& filestream) {
+  char bytes[4];
+  filestream.read(bytes, 4);
+//  uint32_t value = static_cast<uint32_t>(bytes[0] | bytes[1] << 8 |
+//                                         bytes[2] << 16 | bytes[3] << 24);
+  return 0;
+}
+
 int main(int argc, char** argv) {
   cout << "Number of input args is " << argc << endl;
   cout << "Arg loc is " << argv << endl;
@@ -20,7 +31,7 @@ int main(int argc, char** argv) {
     cout << argv[i] << endl;
   }
 
-  char* data;
+//  char* data;
   streampos filesize;
 
   ifstream file (argv[1], ios::in|ios::binary|ios::ate);
@@ -28,16 +39,24 @@ int main(int argc, char** argv) {
     cout << "File " << argv[1] << " opened." << endl;
     filesize = file.tellg();
     cout << "File size is " << filesize << " bytes" << endl;
-    data = new char [filesize];
+
+//    data = new char [filesize];
     file.seekg(ios::beg);
-    file.read(data, filesize);
+    char buffer[4];
+    file.read(buffer, 4);
+    string chunk_id (buffer, 4);
+    uint16_t chunk_size = ReadLittleEndian4Bytes(file);
+    file.read(buffer, 4);
+    string format (buffer, 4);
+//    file.read(data, filesize);
+    cout << chunk_id << endl << chunk_size << endl << format << endl;
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
-    for (int i = 0; i < 50; ++i) {
-      cout << data[i];
-    }
+//    for (int i = 0; i < 50; ++i) {
+//      cout << data[i];
+//    }
     cout << endl;
-    delete[] data;
+//    delete[] data;
   } else {
     cout << "File was not opened.";
   }
