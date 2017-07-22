@@ -63,19 +63,23 @@ int main(int argc, char** argv) {
     file.read(reinterpret_cast<char*>(&riff_info), sizeof(riff_info));
     file.read(reinterpret_cast<char*>(&format_info), sizeof(format_info));
     file.read(reinterpret_cast<char*>(&data_info), sizeof(data_info));
-    cout << "Chunk ID: " << riff_info.chunk_id << endl
-         << "Chunk Size: " << riff_info.chunk_size << endl
-         << "Format: " << riff_info.format << endl
-         << "Subchunk 1 ID: " << format_info.subchunk1_id << endl
-         << "Subchunk 1 Size: " << format_info.subchunk1_size << endl
+    cout << "Chunk ID: ";
+    cout.write(riff_info.chunk_id, sizeof(riff_info.chunk_id)) << endl;
+    cout << "Chunk Size: " << riff_info.chunk_size << endl;
+    cout << "Format: ";
+    cout.write(riff_info.format, sizeof(riff_info.format)) << endl;
+    cout << "Subchunk 1 ID: ";
+    cout.write(format_info.subchunk1_id, sizeof(format_info.subchunk1_id)) << endl;
+    cout << "Subchunk 1 Size: " << format_info.subchunk1_size << endl
          << "Audio Format: " << format_info.audio_format << endl
          << "Number of Channels: " << format_info.num_channels << endl
          << "Sample Rate: " << format_info.sample_rate << endl
          << "Byte Rate: " << format_info.byte_rate << endl
          << "Block Align: " << format_info.block_align << endl
-         << "Bits per Sample: " << format_info.bits_per_sample << endl
-         << "Subchunk 2 ID: " << data_info.subchunk2_id << endl
-         << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
+         << "Bits per Sample: " << format_info.bits_per_sample << endl;
+    cout << "Subchunk 2 ID: ";
+    cout.write(data_info.subchunk2_id, sizeof(data_info.subchunk2_id)) << endl;
+    cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
     cout << "File reading is now at position " << file.tellg() << endl;
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
