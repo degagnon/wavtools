@@ -2,12 +2,13 @@
 // wavtools.cpp
 //
 //  Created on: Jul 19, 2017
-//      Author: david
+//      Author: David Gagnon
+//
+// No license has been specifically selected for this code.
 //
 // This code requires little-endian architecture,
 // which is adequate for local usage,
 // but requires modification for porting to big-endian systems.
-
 
 #include <iostream>
 #include <fstream>
@@ -32,7 +33,6 @@ struct FmtHeader {
   uint16_t block_align;
   uint16_t bits_per_sample;
 };
-
 // TODO(David): Add flexibility to handle extended formats with extra bytes.
 
 struct DataHeader {
@@ -63,6 +63,8 @@ int main(int argc, char** argv) {
     file.read(reinterpret_cast<char*>(&riff_info), sizeof(riff_info));
     file.read(reinterpret_cast<char*>(&format_info), sizeof(format_info));
     file.read(reinterpret_cast<char*>(&data_info), sizeof(data_info));
+    // TODO(David): Improve printing for conciseness and reusability,
+    // possibly via a class.
     cout << "Chunk ID: ";
     cout.write(riff_info.chunk_id, sizeof(riff_info.chunk_id)) << endl;
     cout << "Chunk Size: " << riff_info.chunk_size << endl;
@@ -80,6 +82,7 @@ int main(int argc, char** argv) {
     cout << "Subchunk 2 ID: ";
     cout.write(data_info.subchunk2_id, sizeof(data_info.subchunk2_id)) << endl;
     cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
+    
     cout << "File reading is now at position " << file.tellg() << endl;
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
