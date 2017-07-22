@@ -1,9 +1,13 @@
-/*
- * wavtools.cpp
- *
- *  Created on: Jul 19, 2017
- *      Author: david
- */
+//
+// wavtools.cpp
+//
+//  Created on: Jul 19, 2017
+//      Author: david
+//
+// This code requires little-endian architecture,
+// which is adequate for local usage,
+// but requires modification for porting to big-endian systems.
+
 
 #include <iostream>
 #include <fstream>
@@ -11,6 +15,32 @@
 #include <string>
 
 using namespace std;
+
+struct RiffHeader {
+  char chunk_id[4];
+  uint32_t chunk_size;
+  char format[4];
+};
+
+struct FmtHeader {
+  char subchunk_id[4];
+  uint32_t subchunk1_size;
+  uint16_t audio_format;
+  uint16_t num_channels;
+  uint32_t sample_rate;
+  uint32_t byte_rate;
+  uint16_t block_align;
+  uint16_t bits_per_sample;
+};
+
+// TODO(David): Add flexibility to handle extended formats with extra bytes.
+
+struct DataHeader {
+  char subchunk_id[4];
+  uint32_t subchunk1_size;
+  // Data size will vary by file and therefore is handled separately.
+};
+
 
 uint16_t ReadLittleEndian2ByteUint(ifstream& filestream) {
   uint16_t value;
@@ -24,7 +54,6 @@ uint32_t ReadLittleEndian4ByteUint(ifstream& filestream) {
   cout << "Value is size " << sizeof(value) << endl;
   filestream.read(reinterpret_cast<char*>(&value), sizeof(value));
   return value;
-  
 }
 
 int main(int argc, char** argv) {
