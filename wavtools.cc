@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     
     cout << "File reading is now at position " << file.tellg() << endl;
     
-    vector<int16_t> data;
+    vector<vector<int16_t>> data;
     // Each vector element is int16_t, taking 2 bytes, thus the number of 
     // elements to reserve is equal to [(total bytes) / (2 bytes per element)]
     data.reserve(data_info.subchunk2_size/2);
