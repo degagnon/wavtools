@@ -14,6 +14,7 @@
 #include <fstream>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -84,6 +85,14 @@ int main(int argc, char** argv) {
     cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
     
     cout << "File reading is now at position " << file.tellg() << endl;
+    
+    vector<int16_t> data;
+    // Each vector element is int16_t, taking 2 bytes, thus the number of 
+    // elements to reserve is equal to [(total bytes) / (2 bytes per element)]
+    data.reserve(data_info.subchunk2_size/2);
+    cout << "Vector memory reserved for " << data.capacity() << " elements."
+        << endl << "Current size is " << data.size() << " elements." << endl;
+    
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
   } else {
