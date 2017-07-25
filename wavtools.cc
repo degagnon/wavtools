@@ -83,16 +83,25 @@ int main(int argc, char** argv) {
     cout << "Subchunk 2 ID: ";
     cout.write(data_info.subchunk2_id, sizeof(data_info.subchunk2_id)) << endl;
     cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
-    
     cout << "File reading is now at position " << file.tellg() << endl;
-    
-    vector<vector<int16_t>> data;
-    // Each vector element is int16_t, taking 2 bytes, thus the number of 
-    // elements to reserve is equal to [(total bytes) / (2 bytes per element)]
-    data.reserve(data_info.subchunk2_size/2);
-    cout << "Vector memory reserved for " << data.capacity() << " elements."
-        << endl << "Current size is " << data.size() << " elements." << endl;
-    
+
+    // The data vector is structured such that we load the values for each
+    // channel into a separate column.
+    int num_samples = data_info.subchunk2_size / format_info.block_align;
+    vector<vector<int16_t>> data(format_info.num_channels,
+                                 vector<int16_t>(num_samples));
+    for (int i = 0; i < format_info.num_channels; ++i) {
+      for (int j = 0; j < num_samples; ++j) {
+        file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
+        if (j % 10000 == 0) {
+          cout << "data[" << i << "][" << j << "] = " << data[i][j] << endl;
+        }
+      }
+    }
+    cout << "File reading is now at position " << file.tellg() << endl
+         << "Vector has " << data.size() << " columns and "
+         << data[0].size() << " elements." << endl;
+
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
   } else {
