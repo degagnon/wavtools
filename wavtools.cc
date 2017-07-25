@@ -102,6 +102,12 @@ int main(int argc, char** argv) {
          << "Vector has " << data.size() << " columns and "
          << data[0].size() << " elements." << endl;
 
+    for (int i = file.tellg(); i < filesize; ++i) {
+      char buffer[1];
+      file.read(buffer, sizeof(buffer));
+      cout << buffer << endl;
+    }
+
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
   } else {
