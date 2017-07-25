@@ -99,13 +99,14 @@ int main(int argc, char** argv) {
       }
     }
     cout << "File reading is now at position " << file.tellg() << endl
-         << "Vector has " << data.size() << " columns and "
-         << data[0].size() << " elements." << endl;
+         << "Vector has " << data.size() << " rows and "
+         << data[0].size() << " columns." << endl;
 
-    for (int i = file.tellg(); i < filesize; ++i) {
-      char buffer[1];
-      file.read(buffer, sizeof(buffer));
-      cout << buffer << endl;
+    vector<char> remaining_chunks(filesize - file.tellg(), '0');
+    cout << "Remaining chunks bytes: " << remaining_chunks.size() << endl;
+    file.read(&remaining_chunks[0], remaining_chunks.size());
+    for (unsigned int i = 0; i < remaining_chunks.size(); ++i) {
+      cout << "Byte " << i << " gives: " << remaining_chunks[i] << endl;
     }
 
     file.close();
