@@ -111,17 +111,33 @@ int main(int argc, char** argv) {
 
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
+
+    ofstream plot_data("plot_data.txt", ios::out);
+    if (plot_data.is_open()) {
+      cout << "Writing plot data to file." << endl;
+      plot_data << "# This data has been exported for gnuplot." << endl;
+      for (int point = 0; point < num_samples; ++point) {
+        char delimiter = '\n';
+        for (int channel = 0; channel < format_info.num_channels; ++channel) {
+          if (channel < format_info.num_channels - 1) {
+            delimiter = '\t';
+          } else {
+            delimiter = '\n';
+          }
+          plot_data << "write point here" << delimiter;
+        }
+      }
+      plot_data.close();
+      cout << "Plot data has been exported to \"plot_data.txt\"." << endl;
+    } else {
+      cout << "Plot data has not been exported." << endl;
+    }
+
   } else {
     cout << "File was not opened.";
   }
 
-  ofstream plot_data("plot_data.txt", ios::out);
-  if (plot_data.is_open()) {
-    cout << "Writing plot data to file." << endl;
-    plot_data.close();
-  } else {
-    cout << "Plot data has not been exported." << endl;
-  }
+
 
   return 0;
 }
