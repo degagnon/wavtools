@@ -114,5 +114,14 @@ int main(int argc, char** argv) {
   } else {
     cout << "File was not opened.";
   }
+
+  ofstream plot_data("plot_data.txt", ios::out);
+  if (plot_data.is_open()) {
+    cout << "Writing plot data to file." << endl;
+    plot_data.close();
+  } else {
+    cout << "Plot data has not been exported." << endl;
+  }
+
   return 0;
 }
