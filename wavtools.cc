@@ -132,6 +132,8 @@ int main(int argc, char** argv) {
     } else {
       cout << "Plot data has not been exported." << endl;
     }
+    system("gnuplot -persist -e \"plot 'plot_data.txt' using 1:2\"");
+    // TODO(David): Prepend file with time scale
 
   } else {
     cout << "File was not opened.";
