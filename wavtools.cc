@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
           } else {
             delimiter = '\n';
           }
-          plot_data << "write point here" << delimiter;
+          plot_data << data[channel][point] << delimiter;
         }
       }
       plot_data.close();
