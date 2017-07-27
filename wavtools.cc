@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstdint>
+#include <cstdint>  // exact integer sizes used to interpret wav file format
 #include <string>
 #include <vector>
 #include <iomanip>  // setprecision()
@@ -116,7 +116,6 @@ int main(int argc, char** argv) {
     // A time scale is needed for plotting the time series data.
     vector<double> seconds(num_samples, 0);
     for (unsigned int i = 0; i < num_samples; ++i) {
-      // TODO(David): Upgrade i to enable floating division
       seconds[i] = static_cast<double>(i) / format_info.sample_rate;
     }
 
@@ -141,8 +140,10 @@ int main(int argc, char** argv) {
     } else {
       cout << "Plot data has not been exported." << endl;
     }
+    // The system() command is expedient here for calling gnuplot.
+    // If this were production code, it may be appropriate to use
+    // methods that are faster and more secure.
     system("gnuplot -persist -e \"plot 'plot_data.txt' using 1:2\"");
-    // TODO(David): Prepend file with time scale
 
   } else {
     cout << "File was not opened.";
