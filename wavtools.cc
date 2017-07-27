@@ -143,7 +143,11 @@ int main(int argc, char** argv) {
     // The system() command is expedient here for calling gnuplot.
     // If this were production code, it may be appropriate to use
     // methods that are faster and more secure.
-    system("gnuplot -persist -e \"plot 'plot_data.txt' using 1:2\"");
+    system("gnuplot -persist -e \"plot "
+        "'plot_data.txt' using 1:2 title 'Channel 1' with lines, "
+        "'plot_data.txt' using 1:3 title 'Channel 2' with lines\"");
+    // TODO(David): Debug the plotting problem with misaligned channels,
+    // possibly due to a file parsing problem.
 
   } else {
     cout << "File was not opened.";
