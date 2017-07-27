@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     // channel into a separate column.
     unsigned int num_samples = data_info.subchunk2_size / format_info.block_align;
     vector<vector<int16_t>> data(format_info.num_channels,
-        vector<int16_t>(num_samples));
+                                 vector<int16_t>(num_samples));
     for (unsigned int j = 0; j < num_samples; ++j) {
       for (unsigned int i = 0; i < format_info.num_channels; ++i) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
@@ -143,9 +143,25 @@ int main(int argc, char** argv) {
     // The system() command is expedient here for calling gnuplot.
     // If this were production code, it may be appropriate to use
     // methods that are faster and more secure.
-    system("gnuplot -persist -e \"plot "
-        "'plot_data.txt' using 1:2 title 'Channel 1' with lines, "
-        "'plot_data.txt' using 1:3 title 'Channel 2' with lines\"");
+    string system_command_front = "gnuplot -persist -e \"plot ";
+    string system_command_contents;
+    for (int i = 0; i < format_info.num_channels; ++i) {
+      string delimiter = ", ";
+      if (i < format_info.num_channels - 1) {
+        delimiter = ", ";
+      } else {
+        delimiter = "\"";
+      }
+      system_command_contents += "'plot_data.txt' using 1:" + to_string(i + 2) +
+                                 " title 'Channel " + to_string(i + 1) +
+                                 "' with lines" + delimiter;
+    }
+    string system_command = system_command_front + system_command_contents;
+    cout << "Plotting instruction: " << endl << system_command << endl;
+    system(system_command.c_str());
+//    system("gnuplot -persist -e \"plot "
+//        "'plot_data.txt' using 1:2 title 'Channel 1' with lines, "
+//        "'plot_data.txt' using 1:3 title 'Channel 2' with lines\"");
 
   } else {
     cout << "File was not opened.";
