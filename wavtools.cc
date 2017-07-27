@@ -88,15 +88,12 @@ int main(int argc, char** argv) {
 
     // The data vector is structured such that we load the values for each
     // channel into a separate column.
-    unsigned int num_samples = data_info.subchunk2_size / format_info.block_align;
+    int num_samples = data_info.subchunk2_size / format_info.block_align;
     vector<vector<int16_t>> data(format_info.num_channels,
                                  vector<int16_t>(num_samples));
-    for (unsigned int j = 0; j < num_samples; ++j) {
-      for (unsigned int i = 0; i < format_info.num_channels; ++i) {
+    for (int j = 0; j < num_samples; ++j) {
+      for (int i = 0; i < format_info.num_channels; ++i) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
-        if (j % 10000 == 0) {
-          cout << "data[" << i << "][" << j << "] = " << data[i][j] << endl;
-        }
       }
     }
     cout << "File reading is now at position " << file.tellg() << endl
@@ -106,16 +103,13 @@ int main(int argc, char** argv) {
     vector<char> remaining_chunks(filesize - file.tellg(), '0');
     cout << "Remaining chunks bytes: " << remaining_chunks.size() << endl;
     file.read(&remaining_chunks[0], remaining_chunks.size());
-    for (unsigned int i = 0; i < remaining_chunks.size(); ++i) {
-      cout << "Byte " << i << " gives: " << remaining_chunks[i] << endl;
-    }
 
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
 
     // A time scale is needed for plotting the time series data.
     vector<double> seconds(num_samples, 0);
-    for (unsigned int i = 0; i < num_samples; ++i) {
+    for (int i = 0; i < num_samples; ++i) {
       seconds[i] = static_cast<double>(i) / format_info.sample_rate;
     }
 
@@ -123,7 +117,7 @@ int main(int argc, char** argv) {
     if (plot_data.is_open()) {
       cout << "Writing plot data to file." << endl;
       plot_data << "# This data has been exported for gnuplot." << endl;
-      for (unsigned int point = 0; point < num_samples; ++point) {
+      for (int point = 0; point < num_samples; ++point) {
         char delimiter = '\t';
         plot_data << fixed << setprecision(10) << seconds[point] << delimiter;
         for (int channel = 0; channel < format_info.num_channels; ++channel) {
@@ -159,15 +153,10 @@ int main(int argc, char** argv) {
     string system_command = system_command_front + system_command_contents;
     cout << "Plotting instruction: " << endl << system_command << endl;
     system(system_command.c_str());
-//    system("gnuplot -persist -e \"plot "
-//        "'plot_data.txt' using 1:2 title 'Channel 1' with lines, "
-//        "'plot_data.txt' using 1:3 title 'Channel 2' with lines\"");
 
   } else {
     cout << "File was not opened.";
   }
-
-
 
   return 0;
 }
