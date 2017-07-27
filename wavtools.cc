@@ -90,9 +90,9 @@ int main(int argc, char** argv) {
     // channel into a separate column.
     unsigned int num_samples = data_info.subchunk2_size / format_info.block_align;
     vector<vector<int16_t>> data(format_info.num_channels,
-                                 vector<int16_t>(num_samples));
-    for (unsigned int i = 0; i < format_info.num_channels; ++i) {
-      for (unsigned int j = 0; j < num_samples; ++j) {
+        vector<int16_t>(num_samples));
+    for (unsigned int j = 0; j < num_samples; ++j) {
+      for (unsigned int i = 0; i < format_info.num_channels; ++i) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
         if (j % 10000 == 0) {
           cout << "data[" << i << "][" << j << "] = " << data[i][j] << endl;
@@ -146,8 +146,6 @@ int main(int argc, char** argv) {
     system("gnuplot -persist -e \"plot "
         "'plot_data.txt' using 1:2 title 'Channel 1' with lines, "
         "'plot_data.txt' using 1:3 title 'Channel 2' with lines\"");
-    // TODO(David): Debug the plotting problem with misaligned channels,
-    // possibly due to a file parsing problem.
 
   } else {
     cout << "File was not opened.";
