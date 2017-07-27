@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <iomanip>  // setprecision()
 
 using namespace std;
 
@@ -87,11 +88,11 @@ int main(int argc, char** argv) {
 
     // The data vector is structured such that we load the values for each
     // channel into a separate column.
-    int num_samples = data_info.subchunk2_size / format_info.block_align;
+    unsigned int num_samples = data_info.subchunk2_size / format_info.block_align;
     vector<vector<int16_t>> data(format_info.num_channels,
                                  vector<int16_t>(num_samples));
-    for (int i = 0; i < format_info.num_channels; ++i) {
-      for (int j = 0; j < num_samples; ++j) {
+    for (unsigned int i = 0; i < format_info.num_channels; ++i) {
+      for (unsigned int j = 0; j < num_samples; ++j) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
         if (j % 10000 == 0) {
           cout << "data[" << i << "][" << j << "] = " << data[i][j] << endl;
@@ -112,12 +113,20 @@ int main(int argc, char** argv) {
     file.close();
     cout << "File " << argv[1] << " closed." << endl;
 
+    // A time scale is needed for plotting the time series data.
+    vector<double> seconds(num_samples, 0);
+    for (unsigned int i = 0; i < num_samples; ++i) {
+      // TODO(David): Upgrade i to enable floating division
+      seconds[i] = static_cast<double>(i) / format_info.sample_rate;
+    }
+
     ofstream plot_data("plot_data.txt", ios::out);
     if (plot_data.is_open()) {
       cout << "Writing plot data to file." << endl;
       plot_data << "# This data has been exported for gnuplot." << endl;
-      for (int point = 0; point < num_samples; ++point) {
-        char delimiter = '\n';
+      for (unsigned int point = 0; point < num_samples; ++point) {
+        char delimiter = '\t';
+        plot_data << fixed << setprecision(10) << seconds[point] << delimiter;
         for (int channel = 0; channel < format_info.num_channels; ++channel) {
           if (channel < format_info.num_channels - 1) {
             delimiter = '\t';
