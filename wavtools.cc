@@ -19,6 +19,9 @@
 
 using namespace std;
 
+namespace wav_names {
+}  // namespace wav_names
+
 struct RiffHeader {
   char chunk_id[4];
   uint32_t chunk_size;
@@ -160,3 +163,4 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
