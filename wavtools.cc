@@ -20,6 +20,18 @@
 using namespace std;
 
 namespace wav_names {
+
+class WavFileLabels {
+ public:
+  // TODO(David): Add constructor
+  // TODO(David): Add function to read in initial data chunks
+  // TODO(David): Add function to read in trailing data chunk(s)
+  // TODO(David): Add function to display the gathered information
+
+ private:
+  // TODO(David): Create variables for the data being read
+};
+
 }  // namespace wav_names
 
 struct RiffHeader {
@@ -163,4 +175,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
