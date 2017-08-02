@@ -42,8 +42,6 @@ class Signal{
   // TODO(David): Create vector variables for waveform and timescale
 };
 
-}  // namespace wav_names
-
 struct RiffHeader {
   char chunk_id[4];
   uint32_t chunk_size;
@@ -68,6 +66,8 @@ struct DataHeader {
   // Data size will vary by file and therefore is handled separately.
 };
 
+}  // namespace wav_names
+
 int main(int argc, char** argv) {
   cout << "Number of input args is " << argc << endl;
   cout << "Arg loc is " << argv << endl;
@@ -83,9 +83,9 @@ int main(int argc, char** argv) {
     filesize = file.tellg();
     cout << "File size is " << filesize << " bytes" << endl;
 
-    RiffHeader riff_info;
-    FmtHeader format_info;
-    DataHeader data_info;
+    wav::RiffHeader riff_info;
+    wav::FmtHeader format_info;
+    wav::DataHeader data_info;
     file.seekg(ios::beg);
     file.read(reinterpret_cast<char*>(&riff_info), sizeof(riff_info));
     file.read(reinterpret_cast<char*>(&format_info), sizeof(format_info));
