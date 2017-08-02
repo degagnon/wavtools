@@ -47,7 +47,7 @@ struct DataHeader {
 
 class WavFile {
  public:
-  // TODO(David): Add constructor
+  WavFile (string);
   // TODO(David): Add function to read in initial data chunks
   // TODO(David): Add function to read in waveform data into Signal objects
   // TODO(David): Add function to read in trailing data chunk(s)
@@ -60,6 +60,9 @@ class WavFile {
   DataHeader data_header;
   // TODO(David): Create variables for the data being read
 };
+WavFile::WavFile(string filename) {
+  std::cout << "WavFile object created from '" << filename << "'"<< endl;
+}
 
 class Signal{
  public:
@@ -78,6 +81,8 @@ int main(int argc, char** argv) {
   for (int i = 0; i < argc; ++i) {
     cout << argv[i] << endl;
   }
+
+  wav::WavFile wav_file (argv[1]);
 
   streampos filesize;
   ifstream file (argv[1], ios::in|ios::binary|ios::ate);
