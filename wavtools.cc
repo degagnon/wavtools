@@ -19,9 +19,9 @@
 
 using namespace std;
 
-namespace wav_names {
+namespace wav {
 
-class WavFileLabels {
+class WavFile {
  public:
   // TODO(David): Add constructor
   // TODO(David): Add function to read in initial data chunks
