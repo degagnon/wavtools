@@ -21,27 +21,6 @@ using namespace std;
 
 namespace wav {
 
-class WavFile {
- public:
-  // TODO(David): Add constructor
-  // TODO(David): Add function to read in initial data chunks
-  // TODO(David): Add function to read in waveform data into Signal objects
-  // TODO(David): Add function to read in trailing data chunk(s)
-  // TODO(David): Add function to display the gathered information
-  // TODO(David): Add functions to access specific attributes
-
- private:
-  // TODO(David): Create variables for the data being read
-};
-
-class Signal{
- public:
-  // TODO(David): Add constructor
-
- private:
-  // TODO(David): Create vector variables for waveform and timescale
-};
-
 struct RiffHeader {
   char chunk_id[4];
   uint32_t chunk_size;
@@ -64,6 +43,30 @@ struct DataHeader {
   char subchunk2_id[4];
   uint32_t subchunk2_size;
   // Data size will vary by file and therefore is handled separately.
+};
+
+class WavFile {
+ public:
+  // TODO(David): Add constructor
+  // TODO(David): Add function to read in initial data chunks
+  // TODO(David): Add function to read in waveform data into Signal objects
+  // TODO(David): Add function to read in trailing data chunk(s)
+  // TODO(David): Add function to display the gathered information
+  // TODO(David): Add functions to access specific attributes
+
+ private:
+  RiffHeader riff_header;
+  FmtHeader fmt_header;
+  DataHeader data_header;
+  // TODO(David): Create variables for the data being read
+};
+
+class Signal{
+ public:
+  // TODO(David): Add constructor
+
+ private:
+  // TODO(David): Create vector variables for waveform and timescale
 };
 
 }  // namespace wav_names
