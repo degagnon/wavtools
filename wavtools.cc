@@ -25,11 +25,21 @@ class WavFileLabels {
  public:
   // TODO(David): Add constructor
   // TODO(David): Add function to read in initial data chunks
+  // TODO(David): Add function to read in waveform data into Signal objects
   // TODO(David): Add function to read in trailing data chunk(s)
   // TODO(David): Add function to display the gathered information
+  // TODO(David): Add functions to access specific attributes
 
  private:
   // TODO(David): Create variables for the data being read
+};
+
+class Signal{
+ public:
+  // TODO(David): Add constructor
+
+ private:
+  // TODO(David): Create vector variables for waveform and timescale
 };
 
 }  // namespace wav_names
