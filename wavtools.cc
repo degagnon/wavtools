@@ -56,8 +56,9 @@ class WavFile {
 
  private:
   string filename;
+  streampos filesize;
   RiffHeader riff_header;
-  FmtHeader fmt_header;
+  FmtHeader format_header;
   DataHeader data_header;
   // TODO(David): Create variables for the data being read
 };
@@ -67,8 +68,21 @@ WavFile::WavFile(string filename_input) {
 }
 void WavFile::ReadWav() {
   std::cout << "Now reading file." << endl;
-  // TODO(David): Add file-reading capability
+  ifstream file (filename, ios::in|ios::binary|ios::ate);
+  if (file.is_open()) {
+    std::cout << "File " << filename << " opened." << endl;
+    filesize = file.tellg();
+    std::cout << "File size is " << filesize << " bytes" << endl;
+    file.seekg(ios::beg);
+    file.read(reinterpret_cast<char*>(&riff_header), sizeof(riff_header));
+    file.read(reinterpret_cast<char*>(&format_header), sizeof(format_header));
+    file.read(reinterpret_cast<char*>(&data_header), sizeof(data_header));
+    file.close();
+  } else {
+    std::cout << "File was not opened." << endl;
+  }
 }
+// TODO(David): Add file-reading capability
 
 class Signal{
  public:
