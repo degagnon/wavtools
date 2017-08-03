@@ -49,9 +49,11 @@ class WavFile {
  public:
   WavFile(string);
   void PrintInfo();
+  int GetNumChannels() {return format_header.num_channels;};
+  int GetNumSamples() {return num_samples;};
+  int GetSampleRate() {return format_header.sample_rate;};
   // TODO(David): Add function to read in waveform data into Signal objects
   // TODO(David): Add function to read in trailing data chunk(s)
-  // TODO(David): Add functions to access specific attributes
 
  private:
   string filename;
