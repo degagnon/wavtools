@@ -65,18 +65,16 @@ class WavFile {
 };
 WavFile::WavFile(string filename_input) {
   filename = filename_input;
-  std::cout << "WavFile object being created from '" << filename << "'"<< endl;
   ifstream file (filename, ios::in|ios::binary|ios::ate);
   if (file.is_open()) {
     std::cout << "File " << filename << " opened." << endl;
     filesize = file.tellg();
-    std::cout << "File size is " << filesize << " bytes" << endl;
     file.seekg(ios::beg);
     file.read(reinterpret_cast<char*>(&riff_header), sizeof(riff_header));
     file.read(reinterpret_cast<char*>(&format_header), sizeof(format_header));
     file.read(reinterpret_cast<char*>(&data_header), sizeof(data_header));
     // The data vector is structured such that we load the values for each
-    // channel into a separate row. Element access is [channel][sample].
+    // channel into a separate sub-vector. Element access is [channel][sample].
     num_samples = data_header.subchunk2_size / format_header.block_align;
     vector<vector<int16_t>> data(format_header.num_channels,
                                  vector<int16_t>(num_samples));
@@ -85,14 +83,10 @@ WavFile::WavFile(string filename_input) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
       }
     }
-    cout << "File reading is now at position " << file.tellg() << endl
-         << "Vector has " << data.size() << " channels and "
-         << data[0].size() << " elements per channel." << endl;
-
     vector<char> remaining_chunks(filesize - file.tellg(), '0');
-    cout << "Remaining chunks bytes: " << remaining_chunks.size() << endl;
     file.read(&remaining_chunks[0], remaining_chunks.size());
     file.close();
+    std::cout << "File " << filename << " closed." << endl;
   } else {
     std::cout << "File was not opened." << endl;
   }
@@ -132,24 +126,26 @@ int main(int argc, char** argv) {
     file.read(reinterpret_cast<char*>(&riff_info), sizeof(riff_info));
     file.read(reinterpret_cast<char*>(&format_info), sizeof(format_info));
     file.read(reinterpret_cast<char*>(&data_info), sizeof(data_info));
-//    cout << "Chunk ID: ";
-//    cout.write(riff_info.chunk_id, sizeof(riff_info.chunk_id)) << endl;
-//    cout << "Chunk Size: " << riff_info.chunk_size << endl;
-//    cout << "Format: ";
-//    cout.write(riff_info.format, sizeof(riff_info.format)) << endl;
-//    cout << "Subchunk 1 ID: ";
-//    cout.write(format_info.subchunk1_id, sizeof(format_info.subchunk1_id)) << endl;
-//    cout << "Subchunk 1 Size: " << format_info.subchunk1_size << endl
-//         << "Audio Format: " << format_info.audio_format << endl
-//         << "Number of Channels: " << format_info.num_channels << endl
-//         << "Sample Rate: " << format_info.sample_rate << endl
-//         << "Byte Rate: " << format_info.byte_rate << endl
-//         << "Block Align: " << format_info.block_align << endl
-//         << "Bits per Sample: " << format_info.bits_per_sample << endl;
-//    cout << "Subchunk 2 ID: ";
-//    cout.write(data_info.subchunk2_id, sizeof(data_info.subchunk2_id)) << endl;
-//    cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
-//    cout << "File reading is now at position " << file.tellg() << endl;
+    // TODO(David): Improve printing for conciseness and reusability,
+    // possibly via a class.
+    cout << "Chunk ID: ";
+    cout.write(riff_info.chunk_id, sizeof(riff_info.chunk_id)) << endl;
+    cout << "Chunk Size: " << riff_info.chunk_size << endl;
+    cout << "Format: ";
+    cout.write(riff_info.format, sizeof(riff_info.format)) << endl;
+    cout << "Subchunk 1 ID: ";
+    cout.write(format_info.subchunk1_id, sizeof(format_info.subchunk1_id)) << endl;
+    cout << "Subchunk 1 Size: " << format_info.subchunk1_size << endl
+         << "Audio Format: " << format_info.audio_format << endl
+         << "Number of Channels: " << format_info.num_channels << endl
+         << "Sample Rate: " << format_info.sample_rate << endl
+         << "Byte Rate: " << format_info.byte_rate << endl
+         << "Block Align: " << format_info.block_align << endl
+         << "Bits per Sample: " << format_info.bits_per_sample << endl;
+    cout << "Subchunk 2 ID: ";
+    cout.write(data_info.subchunk2_id, sizeof(data_info.subchunk2_id)) << endl;
+    cout << "Subchunk 2 Size: " << data_info.subchunk2_size << endl;
+    cout << "File reading is now at position " << file.tellg() << endl;
 
     // The data vector is structured such that we load the values for each
     // channel into a separate column.
@@ -161,12 +157,12 @@ int main(int argc, char** argv) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
       }
     }
-//    cout << "File reading is now at position " << file.tellg() << endl
-//         << "Vector has " << data.size() << " rows and "
-//         << data[0].size() << " columns." << endl;
+    cout << "File reading is now at position " << file.tellg() << endl
+         << "Vector has " << data.size() << " channels and "
+         << data[0].size() << " elements per channel." << endl;
 
     vector<char> remaining_chunks(filesize - file.tellg(), '0');
-//    cout << "Remaining chunks bytes: " << remaining_chunks.size() << endl;
+    cout << "Remaining chunks bytes: " << remaining_chunks.size() << endl;
     file.read(&remaining_chunks[0], remaining_chunks.size());
 
     file.close();
