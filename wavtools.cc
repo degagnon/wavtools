@@ -48,9 +48,9 @@ struct DataHeader {
 class WavFile {
  public:
   WavFile(string);
+  void PrintInfo();
   // TODO(David): Add function to read in waveform data into Signal objects
   // TODO(David): Add function to read in trailing data chunk(s)
-  // TODO(David): Add function to display the gathered information
   // TODO(David): Add functions to access specific attributes
 
  private:
@@ -95,6 +95,16 @@ WavFile::WavFile(string filename_input) {
     std::cout << "File was not opened." << endl;
   }
 }
+void WavFile::PrintInfo() {
+  cout << "Data is organized into " << format_header.num_channels
+      << " channels, each with " << num_samples << " samples.\n"
+      << "Sample rate = " << format_header.sample_rate
+      << " samples per second.\n"
+      << "Block Align = " << format_header.block_align
+      << " bytes per sample, including all channels.\n"
+      << "Data point size: " << format_header.bits_per_sample
+      << " bits per sample, single channel." << endl;
+}
 
 class Signal{
  public:
@@ -115,6 +125,7 @@ int main(int argc, char** argv) {
   }
 
   wav::WavFile wav_file (argv[1]);
+  wav_file.PrintInfo();
 
   streampos filesize;
   ifstream file (argv[1], ios::in|ios::binary|ios::ate);
