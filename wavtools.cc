@@ -64,6 +64,10 @@ class WavFile {
   vector<char> remaining_chunks;
 };
 WavFile::WavFile(string filename_input) {
+  // The constructor handles file access and data loading, which might be a
+  // significant amount of work, but the contents and functionality of the
+  // object are tightly tied to the actual file, and using a separate ReadWav()
+  // routine could create initialization issues. Possibly worth revisiting.
   filename = filename_input;
   ifstream file (filename, ios::in|ios::binary|ios::ate);
   if (file.is_open()) {
