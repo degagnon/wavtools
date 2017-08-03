@@ -46,6 +46,7 @@ struct DataHeader {
 };
 
 class WavFile {
+  // Loads wav file data into memory and provides access to it
  public:
   WavFile(string);
   void PrintInfo();
@@ -109,11 +110,19 @@ void WavFile::PrintInfo() {
 }
 
 class Signal{
+  // Handles analysis for signal-type vectors
  public:
   // TODO(David): Add constructor
 
  private:
   // TODO(David): Create vector variables for waveform and timescale
+};
+
+class Plotter{
+  // Governs interactions with gnuplot, including plot settings
+ public:
+
+ private:
 };
 
 }  // namespace wav_names
