@@ -37,7 +37,7 @@ struct FmtHeader {
   uint16_t block_align;
   uint16_t bits_per_sample;
 };
-// TODO(David): Add flexibility to handle extended formats with extra bytes.
+// TODO(David): Handle extended formats with extra bytes (low priority).
 
 struct DataHeader {
   char subchunk2_id[4];
@@ -55,6 +55,7 @@ class WavFile {
   int GetSampleRate() {return format_header.sample_rate;};
 
  private:
+  // TODO(David): Update names of private variables with trailing underscore
   string filename;
   streampos filesize;
   RiffHeader riff_header;
@@ -109,6 +110,7 @@ void WavFile::PrintInfo() {
 
 class Signal{
   // Handles analysis for signal-type vectors
+  // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
   Signal(vector<int>, int);
   vector<int> GetWaveform() {return waveform;};
