@@ -181,7 +181,24 @@ void Plotter::WriteToFile() {
   }
 };
 void Plotter::Plot() {
-
+  string system_command = "gnuplot -persist -e \"plot ";
+  for (int i = 0; i < num_signals_; ++i) {
+    string delimiter = ", ";
+    if (i < num_signals_ - 1) {
+      delimiter = ", ";
+    } else {
+      delimiter = "\"";
+    }
+    system_command += "'" + file_to_write_ + "' using " +
+                      to_string(i*2+1) + ":" + to_string(i*2 + 2) +
+                      " title 'Channel " + to_string(i + 1) +
+                      "' with lines" + delimiter;
+  }
+  cout << "Plotting instruction: " << endl << system_command << endl;
+  // The system() command is expedient here for calling gnuplot.
+  // If this were production code, it may be appropriate to use
+  // methods that are faster and more secure.
+  system(system_command.c_str());
 };
 
 }  // namespace wav_names
