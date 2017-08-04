@@ -53,8 +53,6 @@ class WavFile {
   int GetNumChannels() {return format_header.num_channels;};
   int GetNumSamples() {return num_samples;};
   int GetSampleRate() {return format_header.sample_rate;};
-  // TODO(David): Add function to read in waveform data into Signal objects
-  // TODO(David): Add function to read in trailing data chunk(s)
 
  private:
   string filename;
@@ -97,7 +95,7 @@ WavFile::WavFile(string filename_input) {
   } else {
     std::cout << "File was not opened." << endl;
   }
-}
+};
 void WavFile::PrintInfo() {
   cout << "Data is organized into " << format_header.num_channels
       << " channels, each with " << num_samples << " samples.\n"
@@ -107,15 +105,28 @@ void WavFile::PrintInfo() {
       << " bytes per sample, including all channels.\n"
       << "Data point size: " << format_header.bits_per_sample
       << " bits per sample, single channel." << endl;
-}
+};
 
 class Signal{
   // Handles analysis for signal-type vectors
  public:
-  // TODO(David): Add constructor
+  Signal(vector<int>, int);
+  vector<int> GetWaveform() {return waveform;};
+  vector<double> GetTimeScale() {return time_scale;};
 
  private:
-  // TODO(David): Create vector variables for waveform and timescale
+  vector<int> waveform;
+  vector<double> time_scale;
+  vector<int> spectrum;
+  vector<double> frequency_scale;
+  int sample_rate;
+};
+Signal::Signal(vector<int> data_input, int sample_rate_input) {
+  sample_rate = sample_rate_input;
+  waveform = data_input;
+  for (int i : waveform) {
+    time_scale[i] = static_cast<double>(i) / sample_rate;
+  }
 };
 
 class Plotter{
