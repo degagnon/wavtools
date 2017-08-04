@@ -134,8 +134,25 @@ Signal::Signal(vector<int> data_input, int sample_rate_input) {
 class Plotter{
   // Governs interactions with gnuplot, including plot settings
  public:
+  Plotter() {};
+  void AddSignal(Signal signal_input);
+  void Plot();
 
  private:
+  string file_to_write_ = "plot_data.txt";
+  vector<Signal> signals_;
+  int num_signals_ = 0;
+  void WriteToFile();
+};
+void Plotter::AddSignal(Signal signal_input) {
+  signals_.push_back(signal_input);
+  num_signals_ += 1;
+};
+void Plotter::WriteToFile() {
+
+};
+void Plotter::Plot() {
+
 };
 
 }  // namespace wav_names
