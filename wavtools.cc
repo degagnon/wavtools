@@ -115,13 +115,16 @@ class Signal{
   Signal(vector<int>, int);
   vector<int> GetWaveform() {return waveform;};
   vector<double> GetTimeScale() {return time_scale;};
-
- private:
+  int GetSampleRate() {return sample_rate;};
+  int GetNumSamples() {return num_samples;};
   vector<int> waveform;
   vector<double> time_scale;
   vector<int> spectrum;
   vector<double> frequency_scale;
+
+ private:
   int sample_rate;
+  int num_samples;
 };
 Signal::Signal(vector<int> data_input, int sample_rate_input) {
   sample_rate = sample_rate_input;
@@ -129,6 +132,7 @@ Signal::Signal(vector<int> data_input, int sample_rate_input) {
   for (int i : waveform) {
     time_scale[i] = static_cast<double>(i) / sample_rate;
   }
+  num_samples = sizeof(waveform.data());
 };
 
 class Plotter{
@@ -149,7 +153,32 @@ void Plotter::AddSignal(Signal signal_input) {
   num_signals_ += 1;
 };
 void Plotter::WriteToFile() {
-
+  ofstream plot_prep(file_to_write_, ios::out);
+  if (plot_prep.is_open()) {
+    plot_prep << "# This data has been exported for gnuplot." << endl;
+    int max_signal_length = 0;
+    for (int i = 0; i < num_signals_; ++i) {
+      if (max_signal_length < signals_[i].GetNumSamples()) {
+        max_signal_length = signals_[i].GetNumSamples();
+      }
+    }
+    for (int point = 0; point < max_signal_length; ++point) {
+      char delimiter = '\t';
+      for (int channel = 0; channel < num_signals_; ++channel) {
+        if (channel < num_signals_ - 1) {
+          delimiter = '\t';
+        } else {
+          delimiter = '\n';
+        }
+        plot_prep << fixed << setprecision(8) <<
+            signals_[channel].waveform[point] << '\t';
+        plot_prep << signals_[channel].time_scale[point] << delimiter;
+      }
+    }
+    plot_prep.close();
+  } else {
+    cout << "Plot data has not been exported." << endl;
+  }
 };
 void Plotter::Plot() {
 
