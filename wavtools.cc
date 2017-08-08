@@ -169,7 +169,6 @@ Signal WavFile::ExtractSignal(int selected_channel) {
 
 class Plotter{
   // Governs interactions with gnuplot, including plot settings
-  // TODO(David): Look into plot orientation issue.
  public:
   Plotter() {};
   void AddSignal(Signal signal_input);
@@ -204,8 +203,8 @@ void Plotter::WriteToFile() {
           delimiter = '\n';
         }
         plot_prep << fixed << setprecision(8) <<
-            signals_[channel].waveform[point] << '\t';
-        plot_prep << signals_[channel].time_scale[point] << delimiter;
+            signals_[channel].time_scale[point] << '\t';
+        plot_prep << signals_[channel].waveform[point] << delimiter;
       }
     }
     plot_prep.close();
