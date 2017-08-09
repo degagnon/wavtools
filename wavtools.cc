@@ -47,7 +47,7 @@ struct DataHeader {
 
 class Signal {
   // Handles analysis for signal-type vectors
-  // Intended as a variant of vector<> that adds a time scale and facilitiates
+  // Intended as a variant of vector<> that adds a time scale and facilitates
   // signal-processing functions.
   // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
@@ -93,7 +93,7 @@ class WavFile {
   FmtHeader format_header;
   DataHeader data_header;
   int num_samples;
-  vector<vector<int16_t>> data;
+  vector<vector<int16_t> > data;
   vector<char> remaining_chunks;
 };
 WavFile::WavFile(string filename_input) {
