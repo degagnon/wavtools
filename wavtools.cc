@@ -72,7 +72,7 @@ Signal::Signal(vector<int> data_input, int sample_rate_input) {
   for (int i = 0; i < num_samples; ++i) {
     time_scale.push_back(static_cast<double>(i) / sample_rate);
   }
-};
+}
 
 class WavFile {
   // Loads wav file data into memory and provides access to it
@@ -130,7 +130,7 @@ WavFile::WavFile(string filename_input) {
   } else {
     std::cout << "File was not opened." << endl;
   }
-};
+}
 void WavFile::PrintInfo() {
   cout << "Data is organized into " << format_header.num_channels
       << " channels, each with " << num_samples << " samples.\n"
@@ -140,7 +140,7 @@ void WavFile::PrintInfo() {
       << " bytes per sample, including all channels.\n"
       << "Data point size: " << format_header.bits_per_sample
       << " bits per sample, single channel." << endl;
-};
+}
 void WavFile::PrintHead(int segment_length) {
   if (segment_length > 0 && segment_length < num_samples) {
     for (int i = 0; i < format_header.num_channels; ++i) {
@@ -165,7 +165,7 @@ Signal WavFile::ExtractSignal(int selected_channel) {
   }
   Signal exported_signal (contents, format_header.sample_rate);
   return exported_signal;
-};
+}
 
 class Plotter{
   // Governs interactions with gnuplot, including plot settings
@@ -183,7 +183,7 @@ class Plotter{
 void Plotter::AddSignal(const Signal& signal_input) {
   signals_.push_back(signal_input);
   num_signals_ += 1;
-};
+}
 void Plotter::WriteToFile() {
   ofstream plot_prep(file_to_write_, ios::out);
   if (plot_prep.is_open()) {
@@ -211,7 +211,7 @@ void Plotter::WriteToFile() {
   } else {
     cout << "Plot data has not been exported." << endl;
   }
-};
+}
 void Plotter::Plot() {
   WriteToFile();
   string system_command = "gnuplot -persist -e \"plot ";
@@ -232,7 +232,7 @@ void Plotter::Plot() {
   // If this were production code, it may be appropriate to use
   // methods that are faster and more secure.
   system(system_command.c_str());
-};
+}
 
 }  // namespace wav_names
 
