@@ -49,8 +49,8 @@ class Signal {
   // signal-processing functions.
   // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
-  Signal(std::vector<int>, int);
-  std::vector<int> GetWaveform() {return waveform_;};
+  Signal(std::vector<int16_t>, int);
+  std::vector<int16_t> GetWaveform() {return waveform_;};
   std::vector<double> GetTimeScale() {return time_scale_;};
   int GetWaveformPoint(int index) {return waveform_[index];};
   double GetTimeScalePoint(int index) {return time_scale_[index];};
@@ -58,12 +58,12 @@ class Signal {
   int GetNumSamples() {return num_samples_;};
 
  private:
-  std::vector<int> waveform_;
+  std::vector<int16_t> waveform_;
   std::vector<double> time_scale_;
   int sample_rate_;
   int num_samples_;
 };
-Signal::Signal(std::vector<int> data_input, int sample_rate_input) {
+Signal::Signal(std::vector<int16_t> data_input, int sample_rate_input) {
   sample_rate_ = sample_rate_input;
   waveform_ = data_input;
   num_samples_ = waveform_.size();
@@ -142,7 +142,9 @@ void WavFile::PrintHead(int segment_length) {
   if (segment_length > 0 && segment_length < num_samples_) {
     for (int i = 0; i < format_header_.num_channels; ++i) {
       std::cout << "Channel " << i << ": ";
-      for (int j = 0; j < segment_length; ++j) {
+      // Ternary operator helps avoid accessing nonexistent data
+      for (int j = 0; j < ((segment_length < data_[i].size()) ?
+                           segment_length : data_[i].size()); ++j) {
          std::cout << data_[i][j] << " ";
       }
       std::cout << '\n';
@@ -151,13 +153,13 @@ void WavFile::PrintHead(int segment_length) {
     std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
-// TODO(David): Set ExtractSignal to move vector rather than copy
 Signal WavFile::ExtractSignal(int selected_channel) {
-  std::vector<int> contents;
+  std::vector<int16_t> contents;
   if (selected_channel >= 0 && selected_channel < format_header_.num_channels) {
-    for (int i = 0; i < num_samples_; ++i) {
-      contents.push_back(data_[selected_channel][i]);
-    }
+    contents = std::move(data_[selected_channel]);
+//    for (int i = 0; i < num_samples_; ++i) {
+//      contents.push_back(data_[selected_channel][i]);
+//    }
   } else {
     std::cout << "Invalid channel. Empty signal returned.";
   }
@@ -251,6 +253,8 @@ int main(int argc, char** argv) {
     plot.AddSignal(temporary_signal);
   }
   plot.Plot();
+  // Test whether signals have been fully extracted
+  wav_file.PrintHead(10);
 
   return 0;
 }
