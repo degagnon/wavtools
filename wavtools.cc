@@ -17,8 +17,6 @@
 #include <vector>
 #include <iomanip>  // setprecision()
 
-using namespace std;
-
 namespace wav {
 
 struct RiffHeader {
@@ -51,21 +49,21 @@ class Signal {
   // signal-processing functions.
   // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
-  Signal(vector<int>, int);
-  vector<int> GetWaveform() {return waveform;};
-  vector<double> GetTimeScale() {return time_scale;};
+  Signal(std::vector<int>, int);
+  std::vector<int> GetWaveform() {return waveform;};
+  std::vector<double> GetTimeScale() {return time_scale;};
   int GetSampleRate() {return sample_rate;};
   int GetNumSamples() {return num_samples;};
-  vector<int> waveform;
-  vector<double> time_scale;
-  vector<int> spectrum;
-  vector<double> frequency_scale;
+  std::vector<int> waveform;
+  std::vector<double> time_scale;
+  std::vector<int> spectrum;
+  std::vector<double> frequency_scale;
 
  private:
   int sample_rate;
   int num_samples;
 };
-Signal::Signal(vector<int> data_input, int sample_rate_input) {
+Signal::Signal(std::vector<int> data_input, int sample_rate_input) {
   sample_rate = sample_rate_input;
   waveform = data_input;
   num_samples = waveform.size();
@@ -77,7 +75,7 @@ Signal::Signal(vector<int> data_input, int sample_rate_input) {
 class WavFile {
   // Loads wav file data into memory and provides access to it
  public:
-  WavFile(string);
+  WavFile(std::string);
   void PrintInfo();
   void PrintHead(int);
   int GetNumChannels() {return format_header.num_channels;};
@@ -87,26 +85,26 @@ class WavFile {
 
  private:
   // TODO(David): Update names of private variables with trailing underscore
-  string filename;
-  streampos filesize;
+  std::string filename;
+  std::streampos filesize;
   RiffHeader riff_header;
   FmtHeader format_header;
   DataHeader data_header;
   int num_samples;
-  vector<vector<int16_t> > data;
-  vector<char> remaining_chunks;
+  std::vector<std::vector<int16_t> > data;
+  std::vector<char> remaining_chunks;
 };
-WavFile::WavFile(string filename_input) {
+WavFile::WavFile(std::string filename_input) {
   // The constructor handles file access and data loading, which might be a
   // significant amount of work, but the contents and functionality of the
   // object are tightly tied to the actual file, and using a separate ReadWav()
   // routine could create initialization issues. Possibly worth revisiting.
   filename = filename_input;
-  ifstream file (filename, ios::in|ios::binary|ios::ate);
+  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
   if (file.is_open()) {
-    std::cout << "File " << filename << " opened." << endl;
+    std::cout << "File " << filename << " opened." << std::endl;
     filesize = file.tellg();
-    file.seekg(ios::beg);
+    file.seekg(std::ios::beg);
     file.read(reinterpret_cast<char*>(&riff_header), sizeof(riff_header));
     file.read(reinterpret_cast<char*>(&format_header), sizeof(format_header));
     file.read(reinterpret_cast<char*>(&data_header), sizeof(data_header));
@@ -123,39 +121,39 @@ WavFile::WavFile(string filename_input) {
         file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
       }
     }
-    vector<char> remaining_chunks(filesize - file.tellg(), '0');
+    std::vector<char> remaining_chunks(filesize - file.tellg(), '0');
     file.read(&remaining_chunks[0], remaining_chunks.size());
     file.close();
-    std::cout << "File " << filename << " closed." << endl;
+    std::cout << "File " << filename << " closed." << std::endl;
   } else {
-    std::cout << "File was not opened." << endl;
+    std::cout << "File was not opened." << std::endl;
   }
 }
 void WavFile::PrintInfo() {
-  cout << "Data is organized into " << format_header.num_channels
+  std::cout << "Data is organized into " << format_header.num_channels
       << " channels, each with " << num_samples << " samples.\n"
       << "Sample rate = " << format_header.sample_rate
       << " samples per second.\n"
       << "Block Align = " << format_header.block_align
       << " bytes per sample, including all channels.\n"
       << "Data point size: " << format_header.bits_per_sample
-      << " bits per sample, single channel." << endl;
+      << " bits per sample, single channel." << std::endl;
 }
 void WavFile::PrintHead(int segment_length) {
   if (segment_length > 0 && segment_length < num_samples) {
     for (int i = 0; i < format_header.num_channels; ++i) {
-      cout << "Channel " << i << ": ";
+      std::cout << "Channel " << i << ": ";
       for (int j = 0; j < segment_length; ++j) {
-         cout << data[i][j] << " ";
+         std::cout << data[i][j] << " ";
       }
-      cout << '\n';
+      std::cout << '\n';
     }
   } else {
-    std::cout << segment_length << " is not a valid length." << endl;
+    std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
 Signal WavFile::ExtractSignal(int selected_channel) {
-  vector<int> contents;
+  std::vector<int> contents;
   if (selected_channel >= 0 && selected_channel < format_header.num_channels) {
     for (int i = 0; i < num_samples; ++i) {
       contents.push_back(data[selected_channel][i]);
@@ -175,8 +173,8 @@ class Plotter{
   void Plot();
 
  private:
-  string file_to_write_ = "plot_data.txt";
-  vector<Signal> signals_;
+  std::string file_to_write_ = "plot_data.txt";
+  std::vector<Signal> signals_;
   int num_signals_ = 0;
   void WriteToFile();
 };
@@ -185,9 +183,9 @@ void Plotter::AddSignal(const Signal& signal_input) {
   num_signals_ += 1;
 }
 void Plotter::WriteToFile() {
-  ofstream plot_prep(file_to_write_, ios::out);
+  std::ofstream plot_prep(file_to_write_, std::ios::out);
   if (plot_prep.is_open()) {
-    plot_prep << "# This data has been exported for gnuplot." << endl;
+    plot_prep << "# This data has been exported for gnuplot." << std::endl;
     int max_signal_length = 0;
     for (int i = 0; i < num_signals_; ++i) {
       if (max_signal_length < signals_[i].GetNumSamples()) {
@@ -202,32 +200,32 @@ void Plotter::WriteToFile() {
         } else {
           delimiter = '\n';
         }
-        plot_prep << fixed << setprecision(8) <<
+        plot_prep << std::fixed << std::setprecision(8) <<
             signals_[channel].time_scale[point] << '\t';
         plot_prep << signals_[channel].waveform[point] << delimiter;
       }
     }
     plot_prep.close();
   } else {
-    cout << "Plot data has not been exported." << endl;
+    std::cout << "Plot data has not been exported." << std::endl;
   }
 }
 void Plotter::Plot() {
   WriteToFile();
-  string system_command = "gnuplot -persist -e \"plot ";
+  std::string system_command = "gnuplot -persist -e \"plot ";
   for (int i = 0; i < num_signals_; ++i) {
-    string delimiter = ", ";
+    std::string delimiter = ", ";
     if (i < num_signals_ - 1) {
       delimiter = ", ";
     } else {
       delimiter = "\"";
     }
     system_command += "'" + file_to_write_ + "' using " +
-                      to_string(i*2+1) + ":" + to_string(i*2 + 2) +
-                      " title 'Channel " + to_string(i + 1) +
+                      std::to_string(i*2+1) + ":" + std::to_string(i*2 + 2) +
+                      " title 'Channel " + std::to_string(i + 1) +
                       "' with lines" + delimiter;
   }
-  cout << "Plotting instruction: " << endl << system_command << endl;
+  std::cout << "Plotting instruction: \n" << system_command << std::endl;
   // The system() command is expedient here for calling gnuplot.
   // If this were production code, it may be appropriate to use
   // methods that are faster and more secure.
@@ -237,11 +235,11 @@ void Plotter::Plot() {
 }  // namespace wav_names
 
 int main(int argc, char** argv) {
-  cout << "Number of input args is " << argc << endl;
-  cout << "Arg loc is " << argv << endl;
-  cout << "Arg values are:" << endl;
+  std::cout << "Number of input args is " << argc << std::endl;
+  std::cout << "Arg loc is " << argv << std::endl;
+  std::cout << "Arg values are:" << std::endl;
   for (int i = 0; i < argc; ++i) {
-    cout << argv[i] << endl;
+    std::cout << argv[i] << std::endl;
   }
 
   wav::WavFile wav_file (argv[1]);
