@@ -49,7 +49,7 @@ class Signal {
   // signal-processing functions.
   // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
-  Signal(std::vector<int16_t>, int);
+  Signal(std::vector<int16_t>&, int);
   std::vector<int16_t> GetWaveform() {return waveform_;};
   std::vector<double> GetTimeScale() {return time_scale_;};
   int GetWaveformPoint(int index) {return waveform_[index];};
@@ -63,9 +63,9 @@ class Signal {
   int sample_rate_;
   int num_samples_;
 };
-Signal::Signal(std::vector<int16_t> data_input, int sample_rate_input) {
+Signal::Signal(std::vector<int16_t>& data_input, int sample_rate_input) {
   sample_rate_ = sample_rate_input;
-  waveform_ = data_input;
+  waveform_ = std::move(data_input);
   num_samples_ = waveform_.size();
   for (int i = 0; i < num_samples_; ++i) {
     time_scale_.push_back(static_cast<double>(i) / sample_rate_);
