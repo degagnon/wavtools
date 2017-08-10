@@ -42,7 +42,7 @@ struct FmtHeader {
 struct DataHeader {
   char subchunk2_id[4];
   uint32_t subchunk2_size;
-  // Data size will vary by file and therefore is handled separately.
+  // Data size could vary by file and therefore is handled separately.
 };
 
 class Signal {
@@ -171,7 +171,7 @@ class Plotter{
   // Governs interactions with gnuplot, including plot settings
  public:
   Plotter() {};
-  void AddSignal(Signal signal_input);
+  void AddSignal(const Signal& signal_input);
   void Plot();
 
  private:
@@ -180,7 +180,7 @@ class Plotter{
   int num_signals_ = 0;
   void WriteToFile();
 };
-void Plotter::AddSignal(Signal signal_input) {
+void Plotter::AddSignal(const Signal& signal_input) {
   signals_.push_back(signal_input);
   num_signals_ += 1;
 };
