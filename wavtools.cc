@@ -84,7 +84,6 @@ class WavFile {
   Signal ExtractSignal(int);
 
  private:
-  // TODO(David): Update names of private variables with trailing underscore
   std::string filename_;
   std::streampos filesize_;
   RiffHeader riff_header_;
@@ -152,6 +151,7 @@ void WavFile::PrintHead(int segment_length) {
     std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
+// TODO(David): Set ExtractSignal to move vector rather than copy
 Signal WavFile::ExtractSignal(int selected_channel) {
   std::vector<int> contents;
   if (selected_channel >= 0 && selected_channel < format_header_.num_channels) {
