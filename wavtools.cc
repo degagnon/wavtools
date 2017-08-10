@@ -78,73 +78,73 @@ class WavFile {
   WavFile(std::string);
   void PrintInfo();
   void PrintHead(int);
-  int GetNumChannels() {return format_header.num_channels;};
-  int GetNumSamples() {return num_samples;};
-  int GetSampleRate() {return format_header.sample_rate;};
+  int GetNumChannels() {return format_header_.num_channels;};
+  int GetNumSamples() {return num_samples_;};
+  int GetSampleRate() {return format_header_.sample_rate;};
   Signal ExtractSignal(int);
 
  private:
   // TODO(David): Update names of private variables with trailing underscore
-  std::string filename;
-  std::streampos filesize;
-  RiffHeader riff_header;
-  FmtHeader format_header;
-  DataHeader data_header;
-  int num_samples;
-  std::vector<std::vector<int16_t> > data;
-  std::vector<char> remaining_chunks;
+  std::string filename_;
+  std::streampos filesize_;
+  RiffHeader riff_header_;
+  FmtHeader format_header_;
+  DataHeader data_header_;
+  int num_samples_;
+  std::vector<std::vector<int16_t> > data_;
+  std::vector<char> remaining_chunks_;
 };
 WavFile::WavFile(std::string filename_input) {
   // The constructor handles file access and data loading, which might be a
   // significant amount of work, but the contents and functionality of the
   // object are tightly tied to the actual file, and using a separate ReadWav()
   // routine could create initialization issues. Possibly worth revisiting.
-  filename = filename_input;
-  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
+  filename_ = filename_input;
+  std::ifstream file (filename_, std::ios::in|std::ios::binary|std::ios::ate);
   if (file.is_open()) {
-    std::cout << "File " << filename << " opened." << std::endl;
-    filesize = file.tellg();
+    std::cout << "File " << filename_ << " opened." << std::endl;
+    filesize_ = file.tellg();
     file.seekg(std::ios::beg);
-    file.read(reinterpret_cast<char*>(&riff_header), sizeof(riff_header));
-    file.read(reinterpret_cast<char*>(&format_header), sizeof(format_header));
-    file.read(reinterpret_cast<char*>(&data_header), sizeof(data_header));
+    file.read(reinterpret_cast<char*>(&riff_header_), sizeof(riff_header_));
+    file.read(reinterpret_cast<char*>(&format_header_), sizeof(format_header_));
+    file.read(reinterpret_cast<char*>(&data_header_), sizeof(data_header_));
     // The data vector is structured such that we load the values for each
     // channel into a separate sub-vector. Element access is [channel][sample].
     // Within the class, the data 2D vector needs resizing to fit the data.
-    num_samples = data_header.subchunk2_size / format_header.block_align;
-    data.resize(format_header.num_channels);
-    for (int i = 0; i < format_header.num_channels; ++i) {
-      data[i].resize(num_samples);
+    num_samples_ = data_header_.subchunk2_size / format_header_.block_align;
+    data_.resize(format_header_.num_channels);
+    for (int i = 0; i < format_header_.num_channels; ++i) {
+      data_[i].resize(num_samples_);
     }
-    for (int j = 0; j < num_samples; ++j) {
-      for (int i = 0; i < format_header.num_channels; ++i) {
-        file.read(reinterpret_cast<char*>(&data[i][j]), sizeof(data[i][j]));
+    for (int j = 0; j < num_samples_; ++j) {
+      for (int i = 0; i < format_header_.num_channels; ++i) {
+        file.read(reinterpret_cast<char*>(&data_[i][j]), sizeof(data_[i][j]));
       }
     }
-    std::vector<char> remaining_chunks(filesize - file.tellg(), '0');
+    std::vector<char> remaining_chunks(filesize_ - file.tellg(), '0');
     file.read(&remaining_chunks[0], remaining_chunks.size());
     file.close();
-    std::cout << "File " << filename << " closed." << std::endl;
+    std::cout << "File " << filename_ << " closed." << std::endl;
   } else {
     std::cout << "File was not opened." << std::endl;
   }
 }
 void WavFile::PrintInfo() {
-  std::cout << "Data is organized into " << format_header.num_channels
-      << " channels, each with " << num_samples << " samples.\n"
-      << "Sample rate = " << format_header.sample_rate
+  std::cout << "Data is organized into " << format_header_.num_channels
+      << " channels, each with " << num_samples_ << " samples.\n"
+      << "Sample rate = " << format_header_.sample_rate
       << " samples per second.\n"
-      << "Block Align = " << format_header.block_align
+      << "Block Align = " << format_header_.block_align
       << " bytes per sample, including all channels.\n"
-      << "Data point size: " << format_header.bits_per_sample
+      << "Data point size: " << format_header_.bits_per_sample
       << " bits per sample, single channel." << std::endl;
 }
 void WavFile::PrintHead(int segment_length) {
-  if (segment_length > 0 && segment_length < num_samples) {
-    for (int i = 0; i < format_header.num_channels; ++i) {
+  if (segment_length > 0 && segment_length < num_samples_) {
+    for (int i = 0; i < format_header_.num_channels; ++i) {
       std::cout << "Channel " << i << ": ";
       for (int j = 0; j < segment_length; ++j) {
-         std::cout << data[i][j] << " ";
+         std::cout << data_[i][j] << " ";
       }
       std::cout << '\n';
     }
@@ -154,14 +154,14 @@ void WavFile::PrintHead(int segment_length) {
 }
 Signal WavFile::ExtractSignal(int selected_channel) {
   std::vector<int> contents;
-  if (selected_channel >= 0 && selected_channel < format_header.num_channels) {
-    for (int i = 0; i < num_samples; ++i) {
-      contents.push_back(data[selected_channel][i]);
+  if (selected_channel >= 0 && selected_channel < format_header_.num_channels) {
+    for (int i = 0; i < num_samples_; ++i) {
+      contents.push_back(data_[selected_channel][i]);
     }
   } else {
     std::cout << "Invalid channel. Empty signal returned.";
   }
-  Signal exported_signal (contents, format_header.sample_rate);
+  Signal exported_signal (contents, format_header_.sample_rate);
   return exported_signal;
 }
 
