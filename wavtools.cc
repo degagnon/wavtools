@@ -157,9 +157,6 @@ Signal WavFile::ExtractSignal(int selected_channel) {
   std::vector<int16_t> contents;
   if (selected_channel >= 0 && selected_channel < format_header_.num_channels) {
     contents = std::move(data_[selected_channel]);
-//    for (int i = 0; i < num_samples_; ++i) {
-//      contents.push_back(data_[selected_channel][i]);
-//    }
   } else {
     std::cout << "Invalid channel. Empty signal returned.";
   }
