@@ -50,25 +50,25 @@ class Signal {
   // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
   Signal(std::vector<int>, int);
-  std::vector<int> GetWaveform() {return waveform;};
-  std::vector<double> GetTimeScale() {return time_scale;};
-  int GetSampleRate() {return sample_rate;};
-  int GetNumSamples() {return num_samples;};
-  std::vector<int> waveform;
-  std::vector<double> time_scale;
-  std::vector<int> spectrum;
-  std::vector<double> frequency_scale;
+  std::vector<int> GetWaveform() {return waveform_;};
+  std::vector<double> GetTimeScale() {return time_scale_;};
+  int GetWaveformPoint(int index) {return waveform_[index];};
+  double GetTimeScalePoint(int index) {return time_scale_[index];};
+  int GetSampleRate() {return sample_rate_;};
+  int GetNumSamples() {return num_samples_;};
 
  private:
-  int sample_rate;
-  int num_samples;
+  std::vector<int> waveform_;
+  std::vector<double> time_scale_;
+  int sample_rate_;
+  int num_samples_;
 };
 Signal::Signal(std::vector<int> data_input, int sample_rate_input) {
-  sample_rate = sample_rate_input;
-  waveform = data_input;
-  num_samples = waveform.size();
-  for (int i = 0; i < num_samples; ++i) {
-    time_scale.push_back(static_cast<double>(i) / sample_rate);
+  sample_rate_ = sample_rate_input;
+  waveform_ = data_input;
+  num_samples_ = waveform_.size();
+  for (int i = 0; i < num_samples_; ++i) {
+    time_scale_.push_back(static_cast<double>(i) / sample_rate_);
   }
 }
 
@@ -201,8 +201,8 @@ void Plotter::WriteToFile() {
           delimiter = '\n';
         }
         plot_prep << std::fixed << std::setprecision(8) <<
-            signals_[channel].time_scale[point] << '\t';
-        plot_prep << signals_[channel].waveform[point] << delimiter;
+            signals_[channel].GetTimeScalePoint(point) << '\t';
+        plot_prep << signals_[channel].GetWaveformPoint(point) << delimiter;
       }
     }
     plot_prep.close();
