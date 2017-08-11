@@ -43,27 +43,26 @@ struct DataHeader {
   // Data size could vary by file and therefore is handled separately.
 };
 
+template <typename T>
 class Signal {
   // Handles analysis for signal-type vectors
-  // Intended as a variant of vector<> that adds a time scale and facilitates
-  // signal-processing functions.
-  // TODO: Make signal handle both ints and doubles, possibly via templates
  public:
-  Signal(std::vector<int16_t>&, int);
-  std::vector<int16_t> GetWaveform() {return waveform_;};
+  Signal(std::vector<T>&, int);
+  std::vector<T> GetWaveform() {return waveform_;};
   std::vector<double> GetTimeScale() {return time_scale_;};
-  int GetWaveformPoint(int index) {return waveform_[index];};
+  T GetWaveformPoint(int index) {return waveform_[index];};
   double GetTimeScalePoint(int index) {return time_scale_[index];};
   int GetSampleRate() {return sample_rate_;};
   int GetNumSamples() {return num_samples_;};
 
  private:
-  std::vector<int16_t> waveform_;
+  std::vector<T> waveform_;
   std::vector<double> time_scale_;
   int sample_rate_;
   int num_samples_;
 };
-Signal::Signal(std::vector<int16_t>& data_input, int sample_rate_input) {
+template <typename T>
+Signal<T>::Signal(std::vector<T>& data_input, int sample_rate_input) {
   sample_rate_ = sample_rate_input;
   waveform_ = std::move(data_input);
   num_samples_ = waveform_.size();
@@ -81,7 +80,7 @@ class WavFile {
   int GetNumChannels() {return format_header_.num_channels;};
   int GetNumSamples() {return num_samples_;};
   int GetSampleRate() {return format_header_.sample_rate;};
-  Signal ExtractSignal(int);
+  Signal<int16_t> ExtractSignal(int);
 
  private:
   std::string filename_;
@@ -153,14 +152,14 @@ void WavFile::PrintHead(int segment_length) {
     std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
-Signal WavFile::ExtractSignal(int selected_channel) {
+Signal<int16_t> WavFile::ExtractSignal(int selected_channel) {
   std::vector<int16_t> contents;
   if (selected_channel >= 0 && selected_channel < format_header_.num_channels) {
     contents = std::move(data_[selected_channel]);
   } else {
     std::cout << "Invalid channel. Empty signal returned.";
   }
-  Signal exported_signal (contents, format_header_.sample_rate);
+  Signal<int16_t> exported_signal (contents, format_header_.sample_rate);
   return exported_signal;
 }
 
@@ -168,16 +167,16 @@ class Plotter{
   // Governs interactions with gnuplot, including plot settings
  public:
   Plotter() {};
-  void AddSignal(const Signal& signal_input);
+  void AddSignal(const Signal<int16_t>& signal_input);
   void Plot();
 
  private:
   std::string file_to_write_ = "plot_data.txt";
-  std::vector<Signal> signals_;
+  std::vector<Signal<int16_t> > signals_;
   int num_signals_ = 0;
   void WriteToFile();
 };
-void Plotter::AddSignal(const Signal& signal_input) {
+void Plotter::AddSignal(const Signal<int16_t>& signal_input) {
   signals_.push_back(signal_input);
   num_signals_ += 1;
 }
@@ -246,7 +245,7 @@ int main(int argc, char** argv) {
   wav_file.PrintHead(10);
   wav::Plotter plot;
   for (int i = 0; i < wav_file.GetNumChannels(); ++i) {
-    wav::Signal temporary_signal = wav_file.ExtractSignal(i);
+    wav::Signal<int16_t> temporary_signal = wav_file.ExtractSignal(i);
     plot.AddSignal(temporary_signal);
   }
   plot.Plot();
