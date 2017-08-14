@@ -26,8 +26,8 @@ struct RiffHeader {
 };
 
 struct FmtHeader {
-  char subchunk1_id[4];
-  uint32_t subchunk1_size;
+  char subchunk_id[4];
+  uint32_t subchunk_size;
   uint16_t audio_format;
   uint16_t num_channels;
   uint32_t sample_rate;
@@ -38,14 +38,14 @@ struct FmtHeader {
 // TODO(David): Handle extended formats with extra bytes (low priority).
 
 struct DataHeader {
-  char subchunk2_id[4];
-  uint32_t subchunk2_size;
+  char subchunk_id[4];
+  uint32_t subchunk_size;
   // Data size could vary by file and therefore is handled separately.
 };
 
 struct FactHeader {
-  char subchunk3_id[4];
-  uint32_t subchunk3_size;
+  char subchunk_id[4];
+  uint32_t subchunk_size;
   uint32_t num_samples;
 };
 
@@ -121,7 +121,7 @@ WavFile::WavFile(std::string filename_input) {
     // The data vector is structured such that we load the values for each
     // channel into a separate sub-vector. Element access is [channel][sample].
     // Within the class, the data 2D vector needs resizing to fit the data.
-    num_samples_ = data_header_.subchunk2_size / format_header_.block_align;
+    num_samples_ = data_header_.subchunk_size / format_header_.block_align;
     data_.resize(format_header_.num_channels);
     for (int i = 0; i < format_header_.num_channels; ++i) {
       data_[i].resize(num_samples_);
@@ -156,8 +156,8 @@ void WavFile::PrintAllInfo() {
   std::cout << "Format: ";
   std::cout.write(riff_header_.format, sizeof (riff_header_.format));
   std::cout << "\n*** Format Header ***\nSubchunk ID: ";
-  std::cout.write(format_header_.subchunk1_id, sizeof (format_header_.subchunk1_id));
-  std::cout << "\nSize: " << format_header_.subchunk1_size << '\n';
+  std::cout.write(format_header_.subchunk_id, sizeof (format_header_.subchunk_id));
+  std::cout << "\nSize: " << format_header_.subchunk_size << '\n';
   std::cout << "Format: " << format_header_.audio_format << '\n';
   std::cout << "Number of Channels: " << format_header_.num_channels << '\n';
   std::cout << "Sample Rate: " << format_header_.sample_rate << '\n';
@@ -166,13 +166,13 @@ void WavFile::PrintAllInfo() {
   std::cout << "Bits per Sample: " << format_header_.bits_per_sample << '\n';
   if (format_header_.audio_format != 1) {
     std::cout << "*** Fact Header ***\nSubchunk ID: ";
-    std::cout.write(fact_header_.subchunk3_id, sizeof (fact_header_.subchunk3_id));
-    std::cout << "\nSize: " << fact_header_.subchunk3_size << '\n';
+    std::cout.write(fact_header_.subchunk_id, sizeof (fact_header_.subchunk_id));
+    std::cout << "\nSize: " << fact_header_.subchunk_size << '\n';
     std::cout << "Number of Samples: " << fact_header_.num_samples << '\n';
   }
   std::cout << "*** Data Header ***\nSubchunk ID: ";
-  std::cout.write(data_header_.subchunk2_id, sizeof (data_header_.subchunk2_id));
-  std::cout << "\nSize: " << data_header_.subchunk2_size << '\n';
+  std::cout.write(data_header_.subchunk_id, sizeof (data_header_.subchunk_id));
+  std::cout << "\nSize: " << data_header_.subchunk_size << '\n';
 }
 void WavFile::PrintHead(int segment_length) {
   if (segment_length > 0 && segment_length < num_samples_) {
