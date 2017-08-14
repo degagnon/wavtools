@@ -76,6 +76,7 @@ class WavFile {
  public:
   WavFile(std::string);
   void PrintInfo();
+  void PrintAllInfo();
   void PrintHead(int);
   int GetNumChannels() {return format_header_.num_channels;};
   int GetNumSamples() {return num_samples_;};
@@ -136,6 +137,25 @@ void WavFile::PrintInfo() {
       << " bytes per sample, including all channels.\n"
       << "Data point size: " << format_header_.bits_per_sample
       << " bits per sample, single channel." << std::endl;
+}
+void WavFile::PrintAllInfo() {
+  std::cout << "*** Riff Header ***\nChunk ID: ";
+  std::cout.write(riff_header_.chunk_id, sizeof (riff_header_.chunk_id));
+  std::cout << "\nChunk size: " << riff_header_.chunk_size << '\n';
+  std::cout << "Format: ";
+  std::cout.write(riff_header_.format, sizeof (riff_header_.format));
+  std::cout << "\n*** Format Header ***\nSubchunk ID: ";
+  std::cout.write(format_header_.subchunk1_id, sizeof (format_header_.subchunk1_id));
+  std::cout << "\nSize: " << format_header_.subchunk1_size << '\n';
+  std::cout << "Format: " << format_header_.audio_format << '\n';
+  std::cout << "Number of Channels: " << format_header_.num_channels << '\n';
+  std::cout << "Sample Rate: " << format_header_.sample_rate << '\n';
+  std::cout << "Byte Rate: " << format_header_.byte_rate << '\n';
+  std::cout << "Block Align: " << format_header_.block_align << '\n';
+  std::cout << "Bits per Sample: " << format_header_.bits_per_sample << '\n';
+  std::cout << "*** Data Header ***\nSubchunk ID: ";
+  std::cout.write(data_header_.subchunk2_id, sizeof (data_header_.subchunk2_id));
+  std::cout << "\nSize: " << data_header_.subchunk2_size << '\n';
 }
 void WavFile::PrintHead(int segment_length) {
   if (segment_length > 0 && segment_length < num_samples_) {
@@ -242,15 +262,16 @@ int main(int argc, char** argv) {
 
   wav::WavFile wav_file (argv[1]);
   wav_file.PrintInfo();
-  wav_file.PrintHead(10);
-  wav::Plotter plot;
-  for (int i = 0; i < wav_file.GetNumChannels(); ++i) {
-    wav::Signal<int16_t> temporary_signal = wav_file.ExtractSignal(i);
-    plot.AddSignal(temporary_signal);
-  }
-  plot.Plot();
-  // Test whether signals have been fully extracted
-  wav_file.PrintHead(10);
+  wav_file.PrintAllInfo();
+//  wav_file.PrintHead(10);
+//  wav::Plotter plot;
+//  for (int i = 0; i < wav_file.GetNumChannels(); ++i) {
+//    wav::Signal<int16_t> temporary_signal = wav_file.ExtractSignal(i);
+//    plot.AddSignal(temporary_signal);
+//  }
+//  plot.Plot();
+//  // Test whether signals have been fully extracted
+//  wav_file.PrintHead(10);
 
   return 0;
 }
