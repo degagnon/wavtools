@@ -43,6 +43,12 @@ struct DataHeader {
   // Data size could vary by file and therefore is handled separately.
 };
 
+struct FactHeader {
+  char subchunk3_id[4];
+  uint32_t subchunk3_size;
+  uint32_t num_samples;
+};
+
 template <typename T>
 class Signal {
   // Handles analysis for signal-type vectors
@@ -88,6 +94,7 @@ class WavFile {
   std::streampos filesize_;
   RiffHeader riff_header_;
   FmtHeader format_header_;
+  FactHeader fact_header_;
   DataHeader data_header_;
   int num_samples_;
   std::vector<std::vector<int16_t> > data_;
@@ -106,6 +113,10 @@ WavFile::WavFile(std::string filename_input) {
     file.seekg(std::ios::beg);
     file.read(reinterpret_cast<char*>(&riff_header_), sizeof(riff_header_));
     file.read(reinterpret_cast<char*>(&format_header_), sizeof(format_header_));
+    if (format_header_.audio_format != 1) {
+      // Non-PCM formats require the Fact chunk.
+      file.read(reinterpret_cast<char*>(&fact_header_), sizeof(fact_header_));
+    }
     file.read(reinterpret_cast<char*>(&data_header_), sizeof(data_header_));
     // The data vector is structured such that we load the values for each
     // channel into a separate sub-vector. Element access is [channel][sample].
@@ -153,6 +164,12 @@ void WavFile::PrintAllInfo() {
   std::cout << "Byte Rate: " << format_header_.byte_rate << '\n';
   std::cout << "Block Align: " << format_header_.block_align << '\n';
   std::cout << "Bits per Sample: " << format_header_.bits_per_sample << '\n';
+  if (format_header_.audio_format != 1) {
+    std::cout << "*** Fact Header ***\nSubchunk ID: ";
+    std::cout.write(fact_header_.subchunk3_id, sizeof (fact_header_.subchunk3_id));
+    std::cout << "\nSize: " << fact_header_.subchunk3_size << '\n';
+    std::cout << "Number of Samples: " << fact_header_.num_samples << '\n';
+  }
   std::cout << "*** Data Header ***\nSubchunk ID: ";
   std::cout.write(data_header_.subchunk2_id, sizeof (data_header_.subchunk2_id));
   std::cout << "\nSize: " << data_header_.subchunk2_size << '\n';
