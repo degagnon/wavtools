@@ -19,6 +19,16 @@
 
 namespace wav {
 
+struct ChunkHeader {
+  char id[4];
+  uint32_t size;
+};
+
+inline void PrintFourChars (const char* label) {
+  int kLabelSize = 4;
+  std::cout.write(label, kLabelSize);
+}
+
 struct RiffHeader {
   char chunk_id[4];
   uint32_t chunk_size;
@@ -151,12 +161,12 @@ void WavFile::PrintInfo() {
 }
 void WavFile::PrintAllInfo() {
   std::cout << "*** Riff Header ***\nChunk ID: ";
-  std::cout.write(riff_header_.chunk_id, sizeof (riff_header_.chunk_id));
+  PrintFourChars(riff_header_.chunk_id);
   std::cout << "\nChunk size: " << riff_header_.chunk_size << '\n';
   std::cout << "Format: ";
-  std::cout.write(riff_header_.format, sizeof (riff_header_.format));
+  PrintFourChars(riff_header_.format);
   std::cout << "\n*** Format Header ***\nSubchunk ID: ";
-  std::cout.write(format_header_.subchunk_id, sizeof (format_header_.subchunk_id));
+  PrintFourChars(format_header_.subchunk_id);
   std::cout << "\nSize: " << format_header_.subchunk_size << '\n';
   std::cout << "Format: " << format_header_.audio_format << '\n';
   std::cout << "Number of Channels: " << format_header_.num_channels << '\n';
@@ -166,12 +176,12 @@ void WavFile::PrintAllInfo() {
   std::cout << "Bits per Sample: " << format_header_.bits_per_sample << '\n';
   if (format_header_.audio_format != 1) {
     std::cout << "*** Fact Header ***\nSubchunk ID: ";
-    std::cout.write(fact_header_.subchunk_id, sizeof (fact_header_.subchunk_id));
+    PrintFourChars(fact_header_.subchunk_id);
     std::cout << "\nSize: " << fact_header_.subchunk_size << '\n';
     std::cout << "Number of Samples: " << fact_header_.num_samples << '\n';
   }
   std::cout << "*** Data Header ***\nSubchunk ID: ";
-  std::cout.write(data_header_.subchunk_id, sizeof (data_header_.subchunk_id));
+  PrintFourChars(data_header_.subchunk_id);
   std::cout << "\nSize: " << data_header_.subchunk_size << '\n';
 }
 void WavFile::PrintHead(int segment_length) {
