@@ -200,9 +200,16 @@ void WavFile::PrintHead(int segment_length) {
     for (int i = 0; i < format_.num_channels; ++i) {
       std::cout << "Channel " << i << ": ";
       // Ternary operator helps avoid accessing nonexistent data
-      for (int j = 0; j < ((segment_length < data_int_[i].size()) ?
-                           segment_length : data_int_[i].size()); ++j) {
-        std::cout << data_int_[i][j] << " ";
+      if (format_.audio_format == 1) {
+        for (int j = 0; j < ((segment_length < data_int_[i].size()) ?
+                             segment_length : data_int_[i].size()); ++j) {
+          std::cout << data_int_[i][j] << " ";
+        }
+      } else if (format_.audio_format == 3) {
+        for (int j = 0; j < ((segment_length < data_float_[i].size()) ?
+                             segment_length : data_float_[i].size()); ++j) {
+          std::cout << data_float_[i][j] << " ";
+        }
       }
       std::cout << '\n';
     }
@@ -311,7 +318,7 @@ int main(int argc, char** argv) {
   wav_file.PrintInfo();
   wav_file.PrintAllInfo();
   wav_file.PrintChunks();
-  //  wav_file.PrintHead(10);
+  wav_file.PrintHead(10);
   //  wav::Plotter plot;
   //  for (int i = 0; i < wav_file.GetNumChannels(); ++i) {
   //    wav::Signal<int16_t> temporary_signal = wav_file.ExtractSignal(i);
