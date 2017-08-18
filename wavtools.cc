@@ -10,12 +10,12 @@
 // which is adequate for local usage,
 // but requires modification for porting to big-endian systems.
 
-#include <iostream>
-#include <fstream>
 #include <cstdint>  // exact integer sizes used to interpret wav file format
+#include <fstream>
+#include <iomanip>  // setprecision()
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iomanip>  // setprecision()
 
 namespace wav {
 
@@ -51,13 +51,13 @@ class Signal {
   // Handles analysis for signal-type vectors
  public:
   Signal(std::vector<T>&, int);
-  std::vector<T> GetWaveform() {return waveform_;};
-  std::vector<double> GetTimeScale() {return time_scale_;};
-  T GetWaveformPoint(int index) {return waveform_[index];};
-  double GetTimeScalePoint(int index) {return time_scale_[index];};
-  int GetSampleRate() {return sample_rate_;};
-  int GetNumSamples() {return num_samples_;};
-  
+  std::vector<T> GetWaveform() { return waveform_; };
+  std::vector<double> GetTimeScale() { return time_scale_; };
+  T GetWaveformPoint(int index) { return waveform_[index]; };
+  double GetTimeScalePoint(int index) { return time_scale_[index]; };
+  int GetSampleRate() { return sample_rate_; };
+  int GetNumSamples() { return num_samples_; };
+
  private:
   std::vector<T> waveform_;
   std::vector<double> time_scale_;
@@ -82,9 +82,9 @@ class WavFile {
   void PrintAllInfo();
   void PrintHead(int);
   void PrintChunks();
-  int GetNumChannels() {return format_.num_channels;};
-  int GetNumSamples() {return num_samples_;};
-  int GetSampleRate() {return format_.sample_rate;};
+  int GetNumChannels() { return format_.num_channels; };
+  int GetNumSamples() { return num_samples_; };
+  int GetSampleRate() { return format_.sample_rate; };
   Signal<int16_t> ExtractSignal(int);
 
  private:
@@ -100,7 +100,6 @@ class WavFile {
   std::vector<int32_t> chunk_sizes_;
   std::vector<std::vector<char> > other_data_;
   int kLabelSize_ = 4;
-
 };
 WavFile::WavFile(std::string filename_input) {
   // The constructor handles file access and data loading, which might be a
@@ -108,30 +107,31 @@ WavFile::WavFile(std::string filename_input) {
   // object are tightly tied to the actual file, and using a separate ReadWav()
   // routine could create initialization issues. Possibly worth revisiting.
   filename_ = filename_input;
-  std::ifstream file(filename_, std::ios::in | std::ios::binary | std::ios::ate);
+  std::ifstream file(filename_,
+                     std::ios::in | std::ios::binary | std::ios::ate);
   if (file.is_open()) {
     std::cout << "File " << filename_ << " opened." << std::endl;
     filesize_ = file.tellg();
     file.seekg(std::ios::beg);
     while (file.tellg() < filesize_) {
       ChunkHeader new_header;
-      file.read(reinterpret_cast<char*>(&new_header), sizeof (new_header));
+      file.read(reinterpret_cast<char*>(&new_header), sizeof(new_header));
       chunk_ids_.push_back(std::string(new_header.id, kLabelSize_));
       chunk_sizes_.push_back(new_header.size);
       if (chunk_ids_.back().compare("RIFF") == 0) {
         file.read(reinterpret_cast<char*>(&riff_), kLabelSize_);
       } else if (chunk_ids_.back().compare("fmt ") == 0) {
-        file.read(reinterpret_cast<char*>(&format_), sizeof (format_));
+        file.read(reinterpret_cast<char*>(&format_), sizeof(format_));
         if (format_.audio_format == 1 || format_.audio_format == 3) {
           continue;
         } else {
           std::cout << "This program can only handle 16-bit PCM (fmt code 1)\n"
-              << "or 32-bit IEEE float (fmt code 3).\n"
-              << "Audio data not readable.";
+                    << "or 32-bit IEEE float (fmt code 3).\n"
+                    << "Audio data not readable.";
           break;
         }
       } else if (chunk_ids_.back().compare("fact") == 0) {
-        file.read(reinterpret_cast<char*>(&fact_), sizeof (fact_));
+        file.read(reinterpret_cast<char*>(&fact_), sizeof(fact_));
         num_samples_ = fact_.num_samples;
       } else if (chunk_ids_.back().compare("PEAK") == 0) {
         std::vector<char> char_buffer(chunk_sizes_.back(), '0');
@@ -148,7 +148,8 @@ WavFile::WavFile(std::string filename_input) {
           }
           for (int j = 0; j < num_samples_; ++j) {
             for (int i = 0; i < format_.num_channels; ++i) {
-              file.read(reinterpret_cast<char*>(&data_int_[i][j]), sizeof(data_int_[i][j]));
+              file.read(reinterpret_cast<char*>(&data_int_[i][j]),
+                        sizeof(data_int_[i][j]));
             }
           }
         } else if (format_.audio_format == 3) {
@@ -158,7 +159,8 @@ WavFile::WavFile(std::string filename_input) {
           }
           for (int j = 0; j < num_samples_; ++j) {
             for (int i = 0; i < format_.num_channels; ++i) {
-              file.read(reinterpret_cast<char*>(&data_float_[i][j]), sizeof(data_float_[i][j]));
+              file.read(reinterpret_cast<char*>(&data_float_[i][j]),
+                        sizeof(data_float_[i][j]));
             }
           }
         }
@@ -176,13 +178,13 @@ WavFile::WavFile(std::string filename_input) {
 }
 void WavFile::PrintInfo() {
   std::cout << "Data is organized into " << format_.num_channels
-      << " channels, each with " << num_samples_ << " samples.\n"
-      << "Sample rate = " << format_.sample_rate
-      << " samples per second.\n"
-      << "Block Align = " << format_.block_align
-      << " bytes per sample, including all channels.\n"
-      << "Data point size: " << format_.bits_per_sample
-      << " bits per sample, single channel." << std::endl;
+            << " channels, each with " << num_samples_ << " samples.\n"
+            << "Sample rate = " << format_.sample_rate
+            << " samples per second.\n"
+            << "Block Align = " << format_.block_align
+            << " bytes per sample, including all channels.\n"
+            << "Data point size: " << format_.bits_per_sample
+            << " bits per sample, single channel." << std::endl;
 }
 void WavFile::PrintAllInfo() {
   std::cout << "Riff Type: \n";
@@ -201,13 +203,17 @@ void WavFile::PrintHead(int segment_length) {
       std::cout << "Channel " << i << ": ";
       // Ternary operator helps avoid accessing nonexistent data
       if (format_.audio_format == 1) {
-        for (int j = 0; j < ((segment_length < data_int_[i].size()) ?
-                             segment_length : data_int_[i].size()); ++j) {
+        for (int j = 0;
+             j < ((segment_length < data_int_[i].size()) ? segment_length
+                                                         : data_int_[i].size());
+             ++j) {
           std::cout << data_int_[i][j] << " ";
         }
       } else if (format_.audio_format == 3) {
-        for (int j = 0; j < ((segment_length < data_float_[i].size()) ?
-                             segment_length : data_float_[i].size()); ++j) {
+        for (int j = 0; j < ((segment_length < data_float_[i].size())
+                                 ? segment_length
+                                 : data_float_[i].size());
+             ++j) {
           std::cout << data_float_[i][j] << " ";
         }
       }
@@ -238,9 +244,7 @@ Signal<int16_t> WavFile::ExtractSignal(int selected_channel) {
 class Plotter {
   // Governs interactions with gnuplot, including plot settings
  public:
-
-  Plotter() {
-  };
+  Plotter(){};
   void AddSignal(const Signal<int16_t>& signal_input);
   void Plot();
 
@@ -272,8 +276,8 @@ void Plotter::WriteToFile() {
         } else {
           delimiter = '\n';
         }
-        plot_prep << std::fixed << std::setprecision(8) <<
-            signals_[channel].GetTimeScalePoint(point) << '\t';
+        plot_prep << std::fixed << std::setprecision(8)
+                  << signals_[channel].GetTimeScalePoint(point) << '\t';
         plot_prep << signals_[channel].GetWaveformPoint(point) << delimiter;
       }
     }
@@ -293,9 +297,9 @@ void Plotter::Plot() {
       delimiter = "\"";
     }
     system_command += "'" + file_to_write_ + "' using " +
-        std::to_string(i * 2 + 1) + ":" + std::to_string(i * 2 + 2) +
-        " title 'Channel " + std::to_string(i + 1) +
-        "' with lines" + delimiter;
+                      std::to_string(i * 2 + 1) + ":" +
+                      std::to_string(i * 2 + 2) + " title 'Channel " +
+                      std::to_string(i + 1) + "' with lines" + delimiter;
   }
   std::cout << "Plotting instruction: \n" << system_command << std::endl;
   // The system() command is expedient here for calling gnuplot.
@@ -304,7 +308,7 @@ void Plotter::Plot() {
   system(system_command.c_str());
 }
 
-} // namespace wav_names
+}  // namespace wav_names
 
 int main(int argc, char** argv) {
   std::cout << "Number of input args is " << argc << std::endl;
