@@ -74,6 +74,54 @@ Signal<T>::Signal(std::vector<T>& data_input, int sample_rate_input) {
   }
 }
 
+class FileLoader {
+  // Loads data into memory with minimal interpretation
+ public:
+  FileLoader(std::string);
+  void PrintChunks();  
+
+ private:
+  std::string filename_;
+  std::streampos filesize_;
+  std::vector<std::string> chunk_ids_;
+  std::vector<int32_t> chunk_sizes_;
+  std::vector<std::vector<char> > chunk_data_;
+  int kLabelSize_ = 4;
+};
+FileLoader::FileLoader(std::string filename_input) {
+  filename_ = filename_input;
+  std::ifstream file(filename_,
+                     std::ios::in | std::ios::binary | std::ios::ate);
+  if (file.is_open()) {
+    std::cout << "File " << filename_ << " opened." << std::endl;
+    filesize_ = file.tellg();
+    file.seekg(std::ios::beg);
+    ChunkHeader temp_header;
+    while (file.tellg() < filesize_) {
+      file.read(reinterpret_cast<char*>(&temp_header), sizeof(temp_header));
+      chunk_ids_.push_back(std::string(temp_header.id, kLabelSize_));
+      chunk_sizes_.push_back(temp_header.size);
+      int bytes_to_read =
+          ((chunk_ids_.back().compare("RIFF") == 0) ? kLabelSize_
+                                                    : chunk_sizes_.back());
+      std::vector<char> char_buffer(bytes_to_read, '0');
+      file.read(&char_buffer[0], bytes_to_read);
+      chunk_data_.push_back(char_buffer);
+    }
+    file.close();
+    std::cout << "File " << filename_ << " closed." << std::endl;
+  } else {
+    std::cout << "File was not opened." << std::endl;
+  }
+}
+void FileLoader::PrintChunks() {
+  std::cout << "Chunk Names | Chunk Sizes (Bytes)\n";
+  for (int i = 0; i < chunk_ids_.size(); ++i) {
+    std::cout << "       " << chunk_ids_[i] << " | " << chunk_sizes_[i] << '\n';
+  }
+  std::cout << std::endl;
+}
+
 class WavFile {
   // Loads wav file data into memory and provides access to it
  public:
@@ -317,6 +365,9 @@ int main(int argc, char** argv) {
   for (int i = 0; i < argc; ++i) {
     std::cout << argv[i] << std::endl;
   }
+
+  wav::FileLoader file_raw (argv[1]);
+  file_raw.PrintChunks();
 
   wav::WavFile wav_file(argv[1]);
   wav_file.PrintInfo();
