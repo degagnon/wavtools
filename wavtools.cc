@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>  // find()
 
 namespace wav {
 
@@ -154,11 +155,61 @@ class FileParser {
   std::vector<std::string> chunk_ids_;
   std::vector<int32_t> chunk_sizes_;
   std::vector<std::vector<char> > chunk_data_;
+  std::vector<std::string>::iterator id_finder_;
+  RiffContents riff_;
+  FmtContents format_;
+  FactContents fact_;
+  int data_position_;
+  void ReadRiff();
+  void ReadFmt();
+  void FindData();
+  void ReadFact();
 };
 FileParser::FileParser(FileLoader& source) {
   chunk_ids_ = source.GetIDs();
   chunk_sizes_ = source.GetSizes();
   chunk_data_ = source.GetData();
+  ReadRiff();
+  ReadFmt();
+  FindData();
+  ReadFact();
+}
+void FileParser::ReadRiff() {
+  id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "RIFF");
+  if (id_finder_ != chunk_ids_.end()) {
+    int riff_position = distance(chunk_ids_.begin(), id_finder_);
+    riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_position]);
+  } else {
+    std::cout << "RIFF chunk not found.\n";
+  }
+}
+void FileParser::ReadFmt() {
+  id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fmt ");
+  if (id_finder_ != chunk_ids_.end()) {
+    int fmt_position = distance(chunk_ids_.begin(), id_finder_);
+    format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_position]);
+  } else {
+    std::cout << "fmt chunk not found.\n";
+  }
+}
+void FileParser::FindData() {
+  id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "data");
+  if (id_finder_ != chunk_ids_.end()) {
+    data_position_ = distance(chunk_ids_.begin(), id_finder_);
+  } else {
+    std::cout << "data chunk not found.\n";
+  }
+}
+void FileParser::ReadFact() {
+  id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fact");
+  if (id_finder_ != chunk_ids_.end()) {
+    int fact_position = distance(chunk_ids_.begin(), id_finder_);
+    fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_position]);
+  } else {
+    std::cout << "fact chunk not found.\n"
+              << "Using alternate calculation for number of samples.\n";
+    fact_.num_samples = chunk_sizes_[data_position_] / format_.block_align;
+  }
 }
 
 class WavFile {
