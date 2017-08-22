@@ -74,6 +74,27 @@ Signal<T>::Signal(std::vector<T>& data_input, int sample_rate_input) {
   }
 }
 
+template <typename T>
+class Series {
+ public:
+  Series(std::vector<T>& data_input) { values_ = std::move(data_input); };
+  int GetNumSamples() { return values_.size(); };
+  std::vector<T> GetValues() { return values_; };
+  T GetOnePoint(int index) { return values_[index]; };
+  std::vector<double> CreateTimeScale(int);
+
+ private:
+  std::vector<T> values_;
+};
+template <typename T>
+std::vector<double> Series<T>::CreateTimeScale(int sample_rate) {
+  std::vector<double> time_scale(values_.size());
+  for (int i = 0; i < values_.size(); ++i) {
+    time_scale[i] = static_cast<double>(i) / sample_rate;
+  }
+  return time_scale;
+}
+
 class FileLoader {
   // Loads data into memory with minimal interpretation
  public:
