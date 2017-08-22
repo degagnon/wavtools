@@ -78,7 +78,10 @@ class FileLoader {
   // Loads data into memory with minimal interpretation
  public:
   FileLoader(std::string);
-  void PrintChunks();  
+  void PrintChunks();
+  const std::vector<std::string> GetIDs() { return chunk_ids_; };
+  const std::vector<int32_t> GetSizes() { return chunk_sizes_; };
+  const std::vector<std::vector<char> > GetData() { return chunk_data_; };
 
  private:
   std::string filename_;
@@ -120,6 +123,21 @@ void FileLoader::PrintChunks() {
     std::cout << "       " << chunk_ids_[i] << " | " << chunk_sizes_[i] << '\n';
   }
   std::cout << std::endl;
+}
+
+class FileParser {
+ public:
+  FileParser(FileLoader&);
+
+ private:
+  std::vector<std::string> chunk_ids_;
+  std::vector<int32_t> chunk_sizes_;
+  std::vector<std::vector<char> > chunk_data_;
+};
+FileParser::FileParser(FileLoader& source) {
+  chunk_ids_ = source.GetIDs();
+  chunk_sizes_ = source.GetSizes();
+  chunk_data_ = source.GetData();
 }
 
 class WavFile {
