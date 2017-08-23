@@ -541,7 +541,6 @@ int main(int argc, char** argv) {
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
   wav::Plotter<double> plot;
   for (wav::Series<double>& waveform : waveforms) {
-    // std::vector<double> values = waveform.GetValues();
     wav::Signal<double> temporary_signal(waveform.GetValues(), file_parse.GetSampleRate());
     plot.AddSignal(temporary_signal);
   }
