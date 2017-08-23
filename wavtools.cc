@@ -152,6 +152,7 @@ class FileParser {
   FileParser(FileLoader&);
   void PrintAllInfo();
   std::vector<Series<double>> ExtractChannels();
+  int GetSampleRate() { return format_.sample_rate; };
 
  private:
   std::vector<std::string> chunk_ids_;
@@ -452,24 +453,27 @@ Signal<int16_t> WavFile::ExtractSignal(int selected_channel) {
   return exported_signal;
 }
 
+template <typename T>
 class Plotter {
   // Governs interactions with gnuplot, including plot settings
  public:
   Plotter(){};
-  void AddSignal(const Signal<int16_t>& signal_input);
+  void AddSignal(const Signal<T>& signal_input);
   void Plot();
 
  private:
   std::string file_to_write_ = "plot_data.txt";
-  std::vector<Signal<int16_t> > signals_;
+  std::vector<Signal<T> > signals_;
   int num_signals_ = 0;
   void WriteToFile();
 };
-void Plotter::AddSignal(const Signal<int16_t>& signal_input) {
+template <typename T>
+void Plotter<T>::AddSignal(const Signal<T>& signal_input) {
   signals_.push_back(signal_input);
   num_signals_ += 1;
 }
-void Plotter::WriteToFile() {
+template <typename T>
+void Plotter<T>::WriteToFile() {
   std::ofstream plot_prep(file_to_write_, std::ios::out);
   if (plot_prep.is_open()) {
     plot_prep << "# This data has been exported for gnuplot." << std::endl;
@@ -497,7 +501,8 @@ void Plotter::WriteToFile() {
     std::cout << "Plot data has not been exported." << std::endl;
   }
 }
-void Plotter::Plot() {
+template <typename T>
+void Plotter<T>::Plot() {
   WriteToFile();
   std::string system_command = "gnuplot -persist -e \"plot ";
   for (int i = 0; i < num_signals_; ++i) {
@@ -529,10 +534,18 @@ int main(int argc, char** argv) {
     std::cout << argv[i] << std::endl;
   }
 
-  wav::FileLoader file_raw (argv[1]);
+  wav::FileLoader file_raw(argv[1]);
   file_raw.PrintChunks();
-  wav::FileParser file_parse (file_raw);
+  wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
+  std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
+  wav::Plotter<double> plot;
+  for (wav::Series<double>& waveform : waveforms) {
+    // std::vector<double> values = waveform.GetValues();
+    wav::Signal<double> temporary_signal(waveform.GetValues(), file_parse.GetSampleRate());
+    plot.AddSignal(temporary_signal);
+  }
+  plot.Plot();
 
   wav::WavFile wav_file(argv[1]);
   wav_file.PrintInfo();
