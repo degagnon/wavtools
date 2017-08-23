@@ -151,20 +151,25 @@ class FileParser {
  public:
   FileParser(FileLoader&);
   void PrintAllInfo();
+  std::vector<Series<double>> ExtractChannels();
 
  private:
   std::vector<std::string> chunk_ids_;
   std::vector<int32_t> chunk_sizes_;
-  std::vector<std::vector<char> > chunk_data_;
+  std::vector<std::vector<char>> chunk_data_;
   std::vector<std::string>::iterator id_finder_;
   RiffContents riff_;
   FmtContents format_;
   FactContents fact_;
-  int data_position_;
+  int data_index_;
   void ReadRiff();
   void ReadFmt();
   void FindData();
   void ReadFact();
+  template <typename T>
+  std::vector<std::vector<T>> ReadData();
+  template <typename T>
+  std::vector<std::vector<double>> DataToDouble(std::vector<std::vector<T>>);
 };
 FileParser::FileParser(FileLoader& source) {
   chunk_ids_ = source.GetIDs();
@@ -178,13 +183,13 @@ FileParser::FileParser(FileLoader& source) {
 void FileParser::ReadRiff() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "RIFF");
   if (id_finder_ != chunk_ids_.end()) {
-    int riff_position = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "RIFF found at " << riff_position << std::endl;
-    for (char& item : chunk_data_[riff_position]) {
+    int riff_index_ = distance(chunk_ids_.begin(), id_finder_);
+    std::cout << "RIFF found at " << riff_index_ << std::endl;
+    for (char& item : chunk_data_[riff_index_]) {
       std::cout << item;
     }
     std::cout << std::endl;
-    riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_position][0]);
+    riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_index_][0]);
   } else {
     std::cout << "RIFF chunk not found.\n";
   }
@@ -192,9 +197,9 @@ void FileParser::ReadRiff() {
 void FileParser::ReadFmt() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fmt ");
   if (id_finder_ != chunk_ids_.end()) {
-    int fmt_position = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "fmt found at " << fmt_position << std::endl;
-    format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_position][0]);
+    int fmt_index_ = distance(chunk_ids_.begin(), id_finder_);
+    std::cout << "fmt found at " << fmt_index_ << std::endl;
+    format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_index_][0]);
   } else {
     std::cout << "fmt chunk not found.\n";
   }
@@ -202,8 +207,8 @@ void FileParser::ReadFmt() {
 void FileParser::FindData() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "data");
   if (id_finder_ != chunk_ids_.end()) {
-    data_position_ = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "data found at " << data_position_ << std::endl;
+    data_index_ = distance(chunk_ids_.begin(), id_finder_);
+    std::cout << "data found at " << data_index_ << std::endl;
   } else {
     std::cout << "data chunk not found.\n";
   }
@@ -211,13 +216,13 @@ void FileParser::FindData() {
 void FileParser::ReadFact() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fact");
   if (id_finder_ != chunk_ids_.end()) {
-    int fact_position = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "fact found at " << fact_position << std::endl;
-    fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_position][0]);
+    int fact_index_ = distance(chunk_ids_.begin(), id_finder_);
+    std::cout << "fact found at " << fact_index_ << std::endl;
+    fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_index_][0]);
   } else {
     std::cout << "fact chunk not found.\n"
               << "Using alternate calculation for number of samples.\n";
-    fact_.num_samples = chunk_sizes_[data_position_] / format_.block_align;
+    fact_.num_samples = chunk_sizes_[data_index_] / format_.block_align;
   }
 }
 void FileParser::PrintAllInfo() {
@@ -230,6 +235,54 @@ void FileParser::PrintAllInfo() {
   std::cout << "Block Align: " << format_.block_align << '\n';
   std::cout << "Bits per Sample: " << format_.bits_per_sample << '\n';
   std::cout << "Number of Samples: " << fact_.num_samples << '\n';
+}
+template <typename T>
+std::vector<std::vector<T>> FileParser::ReadData() {
+  int kBitsPerByte = 8;
+  int bytes_per_sample = format_.bits_per_sample/kBitsPerByte;
+  int byte_counter = 0;
+  std::vector<T> single_channel(fact_.num_samples);
+  std::vector<std::vector<T>> data_parse(format_.num_channels,
+                                               single_channel);
+  // Wav data format is interleaved, so we cycle rapidly across channels here.
+  for (int j = 0; j < fact_.num_samples; ++j) {
+    for (int i = 0; i < format_.num_channels; ++i) {
+      data_parse[i][j] =
+          reinterpret_cast<T&>(chunk_data_[data_index_][byte_counter]);
+          byte_counter += bytes_per_sample;
+    }
+  }
+  return data_parse;
+}
+template <typename T>
+std::vector<std::vector<double>> FileParser::DataToDouble(
+    std::vector<std::vector<T>> pre_process) {
+  std::vector<std::vector<double>> post_process(format_.num_channels);
+  for (int i = 0; i < format_.num_channels; ++i) {
+    post_process[i].reserve(fact_.num_samples);
+  }
+  for (int i = 0; i < format_.num_channels; ++i) {
+    for (int j = 0; j < fact_.num_samples; ++j) {
+      post_process[i].push_back(static_cast<double>(pre_process[i][j]));
+    }
+  }
+  return post_process;
+}
+std::vector<Series<double>> FileParser::ExtractChannels() {
+  std::vector<std::vector<double>> output_vectors;
+  if (format_.audio_format == 1) {
+    output_vectors = DataToDouble(ReadData<int16_t>());
+  } else if (format_.audio_format == 3) {
+    output_vectors = DataToDouble(ReadData<float>());
+  } else {
+    std::cout << "Audio data type not recognized.\n";
+  }
+  std::vector<Series<double>> output_series;
+  for (int i = 0; i < format_.num_channels; ++i) {
+    Series<double> temp_series (output_vectors[i]);
+    output_series.push_back(temp_series);
+  }
+  return output_series;
 }
 
 class WavFile {
