@@ -150,6 +150,7 @@ void FileLoader::PrintChunks() {
 class FileParser {
  public:
   FileParser(FileLoader&);
+  void PrintAllInfo();
 
  private:
   std::vector<std::string> chunk_ids_;
@@ -178,7 +179,12 @@ void FileParser::ReadRiff() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "RIFF");
   if (id_finder_ != chunk_ids_.end()) {
     int riff_position = distance(chunk_ids_.begin(), id_finder_);
-    riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_position]);
+    std::cout << "RIFF found at " << riff_position << std::endl;
+    for (char& item : chunk_data_[riff_position]) {
+      std::cout << item;
+    }
+    std::cout << std::endl;
+    riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_position][0]);
   } else {
     std::cout << "RIFF chunk not found.\n";
   }
@@ -187,7 +193,8 @@ void FileParser::ReadFmt() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fmt ");
   if (id_finder_ != chunk_ids_.end()) {
     int fmt_position = distance(chunk_ids_.begin(), id_finder_);
-    format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_position]);
+    std::cout << "fmt found at " << fmt_position << std::endl;
+    format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_position][0]);
   } else {
     std::cout << "fmt chunk not found.\n";
   }
@@ -196,6 +203,7 @@ void FileParser::FindData() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "data");
   if (id_finder_ != chunk_ids_.end()) {
     data_position_ = distance(chunk_ids_.begin(), id_finder_);
+    std::cout << "data found at " << data_position_ << std::endl;
   } else {
     std::cout << "data chunk not found.\n";
   }
@@ -204,12 +212,24 @@ void FileParser::ReadFact() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fact");
   if (id_finder_ != chunk_ids_.end()) {
     int fact_position = distance(chunk_ids_.begin(), id_finder_);
-    fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_position]);
+    std::cout << "fact found at " << fact_position << std::endl;
+    fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_position][0]);
   } else {
     std::cout << "fact chunk not found.\n"
               << "Using alternate calculation for number of samples.\n";
     fact_.num_samples = chunk_sizes_[data_position_] / format_.block_align;
   }
+}
+void FileParser::PrintAllInfo() {
+  std::cout << "Riff Type: \n";
+  PrintFourChars(riff_.format);
+  std::cout << "\nFormat: " << format_.audio_format << '\n';
+  std::cout << "Number of Channels: " << format_.num_channels << '\n';
+  std::cout << "Sample Rate: " << format_.sample_rate << '\n';
+  std::cout << "Byte Rate: " << format_.byte_rate << '\n';
+  std::cout << "Block Align: " << format_.block_align << '\n';
+  std::cout << "Bits per Sample: " << format_.bits_per_sample << '\n';
+  std::cout << "Number of Samples: " << fact_.num_samples << '\n';
 }
 
 class WavFile {
@@ -458,6 +478,8 @@ int main(int argc, char** argv) {
 
   wav::FileLoader file_raw (argv[1]);
   file_raw.PrintChunks();
+  wav::FileParser file_parse (file_raw);
+  file_parse.PrintAllInfo();
 
   wav::WavFile wav_file(argv[1]);
   wav_file.PrintInfo();
