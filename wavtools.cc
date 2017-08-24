@@ -458,42 +458,42 @@ class Plotter {
   // Governs interactions with gnuplot, including plot settings
  public:
   Plotter(){};
-  void AddSignal(const Signal<T>& signal_input);
+  void AddSeriesPair(const Series<T>& time_series, const Series<T>& waveform);
   void Plot();
 
  private:
   std::string file_to_write_ = "plot_data.txt";
-  std::vector<Signal<T> > signals_;
-  int num_signals_ = 0;
+  std::vector<Series<T> > series_list_;
+  int num_series_ = 0;
   void WriteToFile();
 };
 template <typename T>
-void Plotter<T>::AddSignal(const Signal<T>& signal_input) {
-  signals_.push_back(signal_input);
-  num_signals_ += 1;
+void Plotter<T>::AddSeriesPair(const Series<T>& time_series, const Series<T>& waveform) {
+  series_list_.push_back(time_series);
+  series_list_.push_back(waveform);
+  num_series_ += 2;
 }
 template <typename T>
 void Plotter<T>::WriteToFile() {
   std::ofstream plot_prep(file_to_write_, std::ios::out);
   if (plot_prep.is_open()) {
     plot_prep << "# This data has been exported for gnuplot." << std::endl;
-    int max_signal_length = 0;
-    for (int i = 0; i < num_signals_; ++i) {
-      if (max_signal_length < signals_[i].GetNumSamples()) {
-        max_signal_length = signals_[i].GetNumSamples();
+    int max_length = 0;
+    for (int i = 0; i < num_series_; ++i) {
+      if (max_length < series_list_[i].GetNumSamples()) {
+        max_length = series_list_[i].GetNumSamples();
       }
     }
-    for (int point = 0; point < max_signal_length; ++point) {
+    for (int point = 0; point < max_length; ++point) {
       char delimiter = '\t';
-      for (int channel = 0; channel < num_signals_; ++channel) {
-        if (channel < num_signals_ - 1) {
+      for (int column = 0; column < num_series_; ++column) {
+        if (column < num_series_ - 1) {
           delimiter = '\t';
         } else {
           delimiter = '\n';
         }
         plot_prep << std::fixed << std::setprecision(8)
-                  << signals_[channel].GetTimeScalePoint(point) << '\t';
-        plot_prep << signals_[channel].GetWaveformPoint(point) << delimiter;
+                  << series_list_[column].GetOnePoint(point) << delimiter;
       }
     }
     plot_prep.close();
@@ -505,9 +505,9 @@ template <typename T>
 void Plotter<T>::Plot() {
   WriteToFile();
   std::string system_command = "gnuplot -persist -e \"plot ";
-  for (int i = 0; i < num_signals_; ++i) {
+  for (int i = 0; i < num_series_; ++i) {
     std::string delimiter = ", ";
-    if (i < num_signals_ - 1) {
+    if (i < num_series_/2 - 1) {
       delimiter = ", ";
     } else {
       delimiter = "\"";
@@ -539,10 +539,10 @@ int main(int argc, char** argv) {
   wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
+  wav::Series<double> time_axis (waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
   wav::Plotter<double> plot;
-  for (wav::Series<double>& waveform : waveforms) {
-    wav::Signal<double> temporary_signal(waveform.GetValues(), file_parse.GetSampleRate());
-    plot.AddSignal(temporary_signal);
+  for (auto& waveform: waveforms) {
+    plot.AddSeriesPair(time_axis, waveform);
   }
   plot.Plot();
 
