@@ -75,6 +75,7 @@ Signal<T>::Signal(std::vector<T>& data_input, int sample_rate_input) {
   }
 }
 
+// TODO(David): Remove Series class once it is no longer needed
 template <typename T>
 class Series {
  public:
@@ -286,6 +287,7 @@ std::vector<Series<double>> FileParser::ExtractChannels() {
   return output_series;
 }
 
+// TODO(David): Remove WavFile class after PrintHead() function is moved
 class WavFile {
   // Loads wav file data into memory and provides access to it
  public:
@@ -435,6 +437,7 @@ void WavFile::PrintHead(int segment_length) {
     std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
+// TODO(David): Move PrintHead() to FileParser class
 void WavFile::PrintChunks() {
   std::cout << "Chunk Names | Chunk Sizes (Bytes)\n";
   for (int i = 0; i < chunk_ids_.size(); ++i) {
@@ -527,6 +530,7 @@ void Plotter<T>::Plot() {
 }  // namespace wav_names
 
 int main(int argc, char** argv) {
+  //TODO(David): Clean out comments and extraneous material from main()
   std::cout << "Number of input args is " << argc << std::endl;
   std::cout << "Arg loc is " << argv << std::endl;
   std::cout << "Arg values are:" << std::endl;
