@@ -10,13 +10,13 @@
 // which is adequate for local usage,
 // but requires modification for porting to big-endian systems.
 
-#include <cstdint>  // exact integer sizes used to interpret wav file format
+#include <algorithm>  // find()
+#include <cstdint>    // exact integer sizes used to interpret wav file format
 #include <fstream>
 #include <iomanip>  // setprecision()
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>  // find()
 
 namespace wav {
 
@@ -104,14 +104,14 @@ class FileLoader {
   void PrintChunks();
   const std::vector<std::string> GetIDs() { return chunk_ids_; };
   const std::vector<int32_t> GetSizes() { return chunk_sizes_; };
-  const std::vector<std::vector<char> > GetData() { return chunk_data_; };
+  const std::vector<std::vector<char>> GetData() { return chunk_data_; };
 
  private:
   std::string filename_;
   std::streampos filesize_;
   std::vector<std::string> chunk_ids_;
   std::vector<int32_t> chunk_sizes_;
-  std::vector<std::vector<char> > chunk_data_;
+  std::vector<std::vector<char>> chunk_data_;
   int kLabelSize_ = 4;
 };
 FileLoader::FileLoader(std::string filename_input) {
@@ -241,17 +241,16 @@ void FileParser::PrintAllInfo() {
 template <typename T>
 std::vector<std::vector<T>> FileParser::ReadData() {
   int kBitsPerByte = 8;
-  int bytes_per_sample = format_.bits_per_sample/kBitsPerByte;
+  int bytes_per_sample = format_.bits_per_sample / kBitsPerByte;
   int byte_counter = 0;
   std::vector<T> single_channel(fact_.num_samples);
-  std::vector<std::vector<T>> data_parse(format_.num_channels,
-                                               single_channel);
+  std::vector<std::vector<T>> data_parse(format_.num_channels, single_channel);
   // Wav data format is interleaved, so we cycle rapidly across channels here.
   for (int j = 0; j < fact_.num_samples; ++j) {
     for (int i = 0; i < format_.num_channels; ++i) {
       data_parse[i][j] =
           reinterpret_cast<T&>(chunk_data_[data_index_][byte_counter]);
-          byte_counter += bytes_per_sample;
+      byte_counter += bytes_per_sample;
     }
   }
   return data_parse;
@@ -281,7 +280,7 @@ std::vector<Series<double>> FileParser::ExtractChannels() {
   }
   std::vector<Series<double>> output_series;
   for (int i = 0; i < format_.num_channels; ++i) {
-    Series<double> temp_series (output_vectors[i]);
+    Series<double> temp_series(output_vectors[i]);
     output_series.push_back(temp_series);
   }
   return output_series;
@@ -308,11 +307,11 @@ class WavFile {
   FmtContents format_;
   FactContents fact_;
   int num_samples_;
-  std::vector<std::vector<int16_t> > data_int_;
-  std::vector<std::vector<float> > data_float_;
+  std::vector<std::vector<int16_t>> data_int_;
+  std::vector<std::vector<float>> data_float_;
   std::vector<std::string> chunk_ids_;
   std::vector<int32_t> chunk_sizes_;
-  std::vector<std::vector<char> > other_data_;
+  std::vector<std::vector<char>> other_data_;
   int kLabelSize_ = 4;
 };
 WavFile::WavFile(std::string filename_input) {
@@ -466,12 +465,13 @@ class Plotter {
 
  private:
   std::string file_to_write_ = "plot_data.txt";
-  std::vector<Series<T> > series_list_;
+  std::vector<Series<T>> series_list_;
   int num_series_ = 0;
   void WriteToFile();
 };
 template <typename T>
-void Plotter<T>::AddSeriesPair(const Series<T>& time_series, const Series<T>& waveform) {
+void Plotter<T>::AddSeriesPair(const Series<T>& time_series,
+                               const Series<T>& waveform) {
   series_list_.push_back(time_series);
   series_list_.push_back(waveform);
   num_series_ += 2;
@@ -510,7 +510,7 @@ void Plotter<T>::Plot() {
   std::string system_command = "gnuplot -persist -e \"plot ";
   for (int i = 0; i < num_series_; ++i) {
     std::string delimiter = ", ";
-    if (i < num_series_/2 - 1) {
+    if (i < num_series_ / 2 - 1) {
       delimiter = ", ";
     } else {
       delimiter = "\"";
@@ -530,7 +530,7 @@ void Plotter<T>::Plot() {
 }  // namespace wav_names
 
 int main(int argc, char** argv) {
-  //TODO(David): Clean out comments and extraneous material from main()
+  // TODO(David): Clean out comments and extraneous material from main()
   std::cout << "Number of input args is " << argc << std::endl;
   std::cout << "Arg loc is " << argv << std::endl;
   std::cout << "Arg values are:" << std::endl;
@@ -543,9 +543,10 @@ int main(int argc, char** argv) {
   wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
-  wav::Series<double> time_axis (waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
+  wav::Series<double> time_axis(
+      waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
   wav::Plotter<double> plot;
-  for (auto& waveform: waveforms) {
+  for (auto& waveform : waveforms) {
     plot.AddSeriesPair(time_axis, waveform);
   }
   plot.Plot();
