@@ -358,7 +358,8 @@ int main(int argc, char** argv) {
   wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
-  wav::Series<double> time_axis(waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
+  wav::Series<double> time_axis(
+      waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
   wav::Plotter<double> plot;
   for (int i = 0; i < waveforms.size(); ++i) {
     std::cout << "Channel " << i << ": ";
