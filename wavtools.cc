@@ -83,19 +83,19 @@ class Series {
   int GetNumSamples() { return values_.size(); };
   std::vector<T> GetValues() { return values_; };
   T GetOnePoint(int index) { return values_[index]; };
-  std::vector<double> CreateTimeScale(int);
+  Series<double> CreateTimeScale(int);
   void PrintHead(int segment_length);
 
  private:
   std::vector<T> values_;
 };
 template <typename T>
-std::vector<double> Series<T>::CreateTimeScale(int sample_rate) {
+Series<double> Series<T>::CreateTimeScale(int sample_rate) {
   std::vector<double> time_scale(values_.size());
   for (int i = 0; i < values_.size(); ++i) {
     time_scale[i] = static_cast<double>(i) / sample_rate;
   }
-  return time_scale;
+  return Series<double>(time_scale);
 }
 template <typename T>
 void Series<T>::PrintHead(int segment_length) {
@@ -556,8 +556,7 @@ int main(int argc, char** argv) {
   wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
-  std::vector<double> time_vector(waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
-  wav::Series<double> time_axis(time_vector);
+  wav::Series<double> time_axis(waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
   wav::Plotter<double> plot;
   for (int i = 0; i < waveforms.size(); ++i) {
     std::cout << "Channel " << i << ": ";
