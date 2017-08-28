@@ -75,7 +75,7 @@ Signal<T>::Signal(std::vector<T>& data_input, int sample_rate_input) {
   }
 }
 
-// TODO(David): Remove Series class once it is no longer needed
+// TODO(David): Remove Signal class once it is no longer needed
 template <typename T>
 class Series {
  public:
@@ -436,7 +436,7 @@ void WavFile::PrintHead(int segment_length) {
     std::cout << segment_length << " is not a valid length." << std::endl;
   }
 }
-// TODO(David): Move PrintHead() to FileParser class
+// TODO(David): Move PrintHead() to Series class
 void WavFile::PrintChunks() {
   std::cout << "Chunk Names | Chunk Sizes (Bytes)\n";
   for (int i = 0; i < chunk_ids_.size(); ++i) {
