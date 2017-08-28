@@ -84,6 +84,7 @@ class Series {
   std::vector<T> GetValues() { return values_; };
   T GetOnePoint(int index) { return values_[index]; };
   std::vector<double> CreateTimeScale(int);
+  void PrintHead(int segment_length);
 
  private:
   std::vector<T> values_;
@@ -95,6 +96,18 @@ std::vector<double> Series<T>::CreateTimeScale(int sample_rate) {
     time_scale[i] = static_cast<double>(i) / sample_rate;
   }
   return time_scale;
+}
+template <typename T>
+void Series<T>::PrintHead(int segment_length) {
+  if (segment_length > 0 && segment_length < values_.size()) {
+    for (int i = 0; i < segment_length; ++i) {
+      std::cout << values_[i] << " ";
+    }
+    std::cout << '\n';
+  } else {
+    std::cout << "Segment length " << segment_length << " is not valid."
+              << std::endl;
+  }
 }
 
 class FileLoader {
@@ -543,19 +556,21 @@ int main(int argc, char** argv) {
   wav::FileParser file_parse(file_raw);
   file_parse.PrintAllInfo();
   std::vector<wav::Series<double>> waveforms = file_parse.ExtractChannels();
-  wav::Series<double> time_axis(
-      waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
+  int sample_rate = file_parse.GetSampleRate();
+  wav::Series<double> time_axis(waveforms[0].CreateTimeScale(sample_rate));
   wav::Plotter<double> plot;
-  for (auto& waveform : waveforms) {
-    plot.AddSeriesPair(time_axis, waveform);
+  for (int i = 0; i < waveforms.size(); ++i) {
+    std::cout << "Channel " << i << ": ";
+    waveforms[i].PrintHead(10);
+    plot.AddSeriesPair(time_axis, waveforms[i]);
   }
   plot.Plot();
 
-  wav::WavFile wav_file(argv[1]);
-  wav_file.PrintInfo();
-  wav_file.PrintAllInfo();
-  wav_file.PrintChunks();
-  wav_file.PrintHead(10);
+  // wav::WavFile wav_file(argv[1]);
+  // wav_file.PrintInfo();
+  // wav_file.PrintAllInfo();
+  // wav_file.PrintChunks();
+  // wav_file.PrintHead(10);
   //  wav::Plotter plot;
   //  for (int i = 0; i < wav_file.GetNumChannels(); ++i) {
   //    wav::Signal<int16_t> temporary_signal = wav_file.ExtractSignal(i);
