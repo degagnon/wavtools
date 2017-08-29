@@ -323,7 +323,7 @@ template <typename T>
 void Plotter<T>::Plot() {
   WriteToFile();
   std::string system_command = "gnuplot -persist -e \"plot ";
-  for (int i = 0; i < num_series_; ++i) {
+  for (int i = 0; i < num_series_ / 2; ++i) {
     std::string delimiter = ", ";
     if (i < num_series_ / 2 - 1) {
       delimiter = ", ";
