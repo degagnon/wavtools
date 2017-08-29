@@ -55,7 +55,7 @@ class Series {
   std::vector<T> GetValues() { return values_; };
   T GetOnePoint(int index) { return values_[index]; };
   Series<double> CreateTimeScale(int);
-  void PrintHead(int segment_length);
+  void PrintHead(size_t segment_length);
 
  private:
   std::vector<T> values_;
@@ -63,15 +63,15 @@ class Series {
 template <typename T>
 Series<double> Series<T>::CreateTimeScale(int sample_rate) {
   std::vector<double> time_scale(values_.size());
-  for (int i = 0; i < values_.size(); ++i) {
+  for (size_t i = 0; i < values_.size(); ++i) {
     time_scale[i] = static_cast<double>(i) / sample_rate;
   }
   return Series<double>(time_scale);
 }
 template <typename T>
-void Series<T>::PrintHead(int segment_length) {
+void Series<T>::PrintHead(size_t segment_length) {
   if (segment_length > 0 && segment_length < values_.size()) {
-    for (int i = 0; i < segment_length; ++i) {
+    for (size_t i = 0; i < segment_length; ++i) {
       std::cout << values_[i] << " ";
     }
     std::cout << '\n';
@@ -126,7 +126,7 @@ FileLoader::FileLoader(std::string filename_input) {
 }
 void FileLoader::PrintChunks() {
   std::cout << "Chunk Names | Chunk Sizes (Bytes)\n";
-  for (int i = 0; i < chunk_ids_.size(); ++i) {
+  for (size_t i = 0; i < chunk_ids_.size(); ++i) {
     std::cout << "       " << chunk_ids_[i] << " | " << chunk_sizes_[i] << '\n';
   }
   std::cout << std::endl;
@@ -230,8 +230,8 @@ std::vector<std::vector<T>> FileParser::ReadData() {
   std::vector<T> single_channel(fact_.num_samples);
   std::vector<std::vector<T>> data_parse(format_.num_channels, single_channel);
   // Wav data format is interleaved, so we cycle rapidly across channels here.
-  for (int j = 0; j < fact_.num_samples; ++j) {
-    for (int i = 0; i < format_.num_channels; ++i) {
+  for (size_t j = 0; j < fact_.num_samples; ++j) {
+    for (size_t i = 0; i < format_.num_channels; ++i) {
       data_parse[i][j] =
           reinterpret_cast<T&>(chunk_data_[data_index_][byte_counter]);
       byte_counter += bytes_per_sample;
@@ -247,7 +247,7 @@ std::vector<std::vector<double>> FileParser::DataToDouble(
     post_process[i].reserve(fact_.num_samples);
   }
   for (int i = 0; i < format_.num_channels; ++i) {
-    for (int j = 0; j < fact_.num_samples; ++j) {
+    for (size_t j = 0; j < fact_.num_samples; ++j) {
       post_process[i].push_back(static_cast<double>(pre_process[i][j]));
     }
   }
@@ -361,7 +361,7 @@ int main(int argc, char** argv) {
   wav::Series<double> time_axis(
       waveforms[0].CreateTimeScale(file_parse.GetSampleRate()));
   wav::Plotter<double> plot;
-  for (int i = 0; i < waveforms.size(); ++i) {
+  for (size_t i = 0; i < waveforms.size(); ++i) {
     std::cout << "Channel " << i << ": ";
     waveforms[i].PrintHead(10);
     plot.AddSeriesPair(time_axis, waveforms[i]);
