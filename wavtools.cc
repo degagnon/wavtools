@@ -170,10 +170,6 @@ void FileParser::ReadRiff() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "RIFF");
   if (id_finder_ != chunk_ids_.end()) {
     int riff_index_ = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "RIFF found at " << riff_index_ << std::endl;
-    for (char& item : chunk_data_[riff_index_]) {
-      std::cout << item;
-    }
     std::cout << std::endl;
     riff_ = reinterpret_cast<RiffContents&>(chunk_data_[riff_index_][0]);
   } else {
@@ -184,7 +180,6 @@ void FileParser::ReadFmt() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fmt ");
   if (id_finder_ != chunk_ids_.end()) {
     int fmt_index_ = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "fmt found at " << fmt_index_ << std::endl;
     format_ = reinterpret_cast<FmtContents&>(chunk_data_[fmt_index_][0]);
   } else {
     std::cout << "fmt chunk not found.\n";
@@ -194,7 +189,6 @@ void FileParser::FindData() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "data");
   if (id_finder_ != chunk_ids_.end()) {
     data_index_ = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "data found at " << data_index_ << std::endl;
   } else {
     std::cout << "data chunk not found.\n";
   }
@@ -203,7 +197,6 @@ void FileParser::ReadFact() {
   id_finder_ = std::find(chunk_ids_.begin(), chunk_ids_.end(), "fact");
   if (id_finder_ != chunk_ids_.end()) {
     int fact_index_ = distance(chunk_ids_.begin(), id_finder_);
-    std::cout << "fact found at " << fact_index_ << std::endl;
     fact_ = reinterpret_cast<FactContents&>(chunk_data_[fact_index_][0]);
   } else {
     std::cout << "fact chunk not found.\n"
