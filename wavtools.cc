@@ -345,14 +345,6 @@ void Plotter<T>::Plot() {
 }  // namespace wav_names
 
 int main(int argc, char** argv) {
-  // TODO(David): Clean out comments and extraneous material from main()
-  std::cout << "Number of input args is " << argc << std::endl;
-  std::cout << "Arg loc is " << argv << std::endl;
-  std::cout << "Arg values are:" << std::endl;
-  for (int i = 0; i < argc; ++i) {
-    std::cout << argv[i] << std::endl;
-  }
-
   wav::FileLoader file_raw(argv[1]);
   file_raw.PrintChunks();
   wav::FileParser file_parse(file_raw);
