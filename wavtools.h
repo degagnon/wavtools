@@ -10,8 +10,8 @@
 // which is adequate for local usage,
 // but requires modification for porting to big-endian systems.
 
-#ifndef <WAVTOOLS_H>
-#define <WAVTOOLS_H>
+#ifndef WAVTOOLS_H
+#define WAVTOOLS_H
 
 #include <algorithm>  // find()
 #include <cstdint>    // exact integer sizes used to interpret wav file format
