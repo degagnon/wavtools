@@ -1,6 +1,6 @@
 // main file for using wavtools library
 
-#include <wavtools.h>
+#include "wavtools.h"
 
 int main(int argc, char** argv) {
     wav::FileLoader file_raw(argv[1]);
