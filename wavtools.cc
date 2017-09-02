@@ -339,5 +339,3 @@ void Plotter<T>::Plot() {
 }
 
 }  // namespace wav_names
-
-
