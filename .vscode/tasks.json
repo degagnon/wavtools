@@ -21,6 +21,7 @@
             },
             "args": [
                 "${fileBasename}",      // Compile the current file
+                "-c",                   // and only compile (do not link)
                 "-std=c++0x",           // using C++11
                 "-o",                   // with output name
                 "${fileBasenameNoExtension}.o",  // based on the current file's name
