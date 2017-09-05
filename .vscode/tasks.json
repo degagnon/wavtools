@@ -42,7 +42,7 @@
             }
         },
         {
-            "taskName": "compile project",
+            "taskName": "compile project from objects",
             "group": {
                 "kind": "build",
                 "isDefault": false
@@ -55,6 +55,39 @@
             "args": [
                 "main.o",               // Start with the main object file
                 "wavtools.o",           // linking with the library object
+                "-std=c++0x",           // using C++11
+                "-o",                   // with output name
+                "wav_project.exe",      // for full project
+                "-g3",                  // with maximum debug level
+                "-Wall"                 // showing all warnings
+            ],
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "taskName": "compile project from source",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "command": "g++",
+            "type": "shell",
+            "presentation": {
+                "reveal": "always"
+            },
+            "args": [
+                "main.cc",              // Start with the main object file
+                "wavtools.cc",          // linking with the library object
                 "-std=c++0x",           // using C++11
                 "-o",                   // with output name
                 "wav_project.exe",      // for full project
