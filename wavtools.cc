@@ -16,6 +16,9 @@
 namespace wav {
 
 FileLoader::FileLoader(std::string filename_input) {
+  LoadFile(filename_input);
+}
+void FileLoader::LoadFile(std::string filename_input) {
   filename_ = filename_input;
   std::ifstream file(filename_,
                      std::ios::in | std::ios::binary | std::ios::ate);
@@ -37,8 +40,10 @@ FileLoader::FileLoader(std::string filename_input) {
     }
     file.close();
     std::cout << "File " << filename_ << " closed." << std::endl;
+    load_success = true;
   } else {
     std::cout << "File was not opened." << std::endl;
+    load_success = false;
   }
 }
 void FileLoader::PrintChunks() {

@@ -90,10 +90,12 @@ class FileLoader {
   // Loads data into memory with minimal interpretation
  public:
   FileLoader(std::string);
+  void LoadFile(std::string);
   void PrintChunks();
   const std::vector<std::string> GetIDs() { return chunk_ids_; };
   const std::vector<int32_t> GetSizes() { return chunk_sizes_; };
   const std::vector<std::vector<char>> GetData() { return chunk_data_; };
+  bool load_success;
 
  private:
   std::string filename_;
