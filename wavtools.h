@@ -6,8 +6,6 @@
 // Last Updated: September 2017
 //       Author: David Gagnon
 //
-// No license has been specifically selected for this code.
-//
 // This code requires little-endian architecture,
 // which is adequate for local usage,
 // but requires modification for porting to big-endian systems.
