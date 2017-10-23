@@ -9,4 +9,4 @@
 # Executables
 *.exe
 # Intermediate text data
-*.txt
+plot_data.txt
