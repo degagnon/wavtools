@@ -1,0 +1,33 @@
+
+Terminal Input:
+PS C:\Users\User\EclipseCPP\Shared\wavtools> .\wav_project.exe triaudio.wav
+
+Terminal Output:
+Input file name is: triaudio.wav
+File triaudio.wav opened.
+File triaudio.wav closed.
+Chunk Names | Chunk Sizes (Bytes)
+       RIFF | 874330
+       fmt  | 16
+       data | 874014
+       LIST | 104
+       id3  | 160
+
+
+fact chunk not found.
+Using alternate calculation for number of samples.
+Riff Type:
+WAVE
+Format: 1
+Number of Channels: 3
+Sample Rate: 44100
+Byte Rate: 264600
+Block Align: 6
+Bits per Sample: 16
+Number of Samples: 145669
+Channel 0: 4 1 -2 -1 -6 0 2 -16 -12 -21
+Channel 1: 0 0 1 -2 2 -2 3 -3 3 -3
+Channel 2: -1 2 -2 2 -1 -1 3 -4 4 -3
+Plotting instruction:
+gnuplot -persist -e "plot 'plot_data.txt' using 1:2 title 'Channel 1' with lines, 'plot_data.txt' using 3:4 title 'Channel 2' with lines, 'plot_data.txt' using 5:6 title 'Channel 3'
+sing 5:6 title 'Channel 3' with lines"
