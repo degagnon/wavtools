@@ -1,4 +1,4 @@
-// main file for using wavtools library
+// main file for using wavtools
 
 #include "wavtools.h"
 
@@ -15,8 +15,8 @@ int main(int argc, char** argv) {
   while (!file_raw.load_success) {
     std::cout << "File " << file_name << " was not loadable.\n";
     std::cout << "Choose file name: ";
-    // getline's functionality on the terminal is satisfactory.
-    // It appears that the debugger in VS Code does not stop to allow
+    // getline's functionality during non-debug operation is satisfactory.
+    // It appears that gdb inside VS Code does not stop to allow
     // user input via getline.
     std::getline(std::cin, file_name);
     file_raw.LoadFile(file_name);

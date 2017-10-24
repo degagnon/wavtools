@@ -1,4 +1,3 @@
-//
 // wavtools.cc
 // Implementation file for FileLoader and FileParser classes of wavtools
 //

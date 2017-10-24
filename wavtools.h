@@ -1,4 +1,3 @@
-//
 // wavtools.h
 // Header file for wavtools
 // Templated classes remain within this header file.
@@ -16,7 +15,7 @@
 #include <algorithm>  // find()
 #include <cstdint>    // exact integer sizes used to interpret wav file format
 #include <fstream>
-#include <iomanip>  // setprecision()
+#include <iomanip>    // setprecision()
 #include <iostream>
 #include <string>
 #include <vector>
