@@ -15,12 +15,12 @@ At this time, the code is able to interpret both WAVE format type 0x0001 (16-bit
 
 Although each heading is identified, not all chunks are parsed. For example, the "LIST" and "id3_" chunks remain in binary only.
 
-Plotting is achieved through a system call to gnuplot, as opposed to using direct gnuplot C++ classes or other graphical approaches. This approach was chosen as a simple way to view the waveform in a relatively short period of development time. Copying the waveform data into a text file for the system call can be a significant bottleneck in execution time.
+Plotting is achieved through a system call to gnuplot, as opposed to using direct gnuplot C++ classes or other graphical approaches. In order for the system call to work, the waveform data is copied into a text file, which can be a significant bottleneck in execution time. This approach was chosen as a simple way to view the waveform in a relatively short period of development time.
 
 Note that the code assumes little-endian architecture and would require additional refactoring for big-endian systems.
 
 ## Dependencies
-**wavtools** does not require any libraries outside the STL in order to compile, but the plotting functionality requires [gnuplot](http://www.gnuplot.info/).
+**wavtools** does not require any libraries outside the STL in order to compile, but the plotting functionality requires [gnuplot](http://www.gnuplot.info/) to be installed on your system.
 
 ## Sample Audio Files
 Audio files for testing this project were recorded in [Audacity](http://www.audacityteam.org/home/).
