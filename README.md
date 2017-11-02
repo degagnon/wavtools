@@ -24,12 +24,12 @@ Note that the code assumes little-endian architecture and would require addition
 
 ## Sample Audio Files
 Audio files for testing this project were recorded in [Audacity](http://www.audacityteam.org/home/).
+
 | File | Format |
 | --- | --- |
 | audiosample.wav | 16-bit sample with 2 channels |
 | triaudio.wav | 16-bit sample with 3 channels |
 | encoded32bit.wav | 32-bit sample with 2 channels |
-
 
 ## References
 Thank you to the commenters and curators of these sites for helpful resources on this project:
